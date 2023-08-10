@@ -1,0 +1,10 @@
+{
+  "version": 0,
+  "timeEvents": [
+    {
+      "name": "pause",
+      "targetTime": 2.4939271255060724
+    }
+  ],
+  "seed": 3912929168
+}
