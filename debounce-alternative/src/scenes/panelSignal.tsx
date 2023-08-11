@@ -313,7 +313,7 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		paper1Ref().opacity(1, 0.5),
 		paper2Ref().opacity(1, 0.5),
-		mainCodeRef().edit(1)`${insert("@service_property(notify=True)\n    def some_state(self): pass")}`,
+		mainCodeRef().edit(1)`${insert("@service_property(notify=True)\ndef some_state(self): pass")}`,
 		filterCodeRef().edit(1)`${insert('"some_state"')}`,
 	);
 
@@ -348,7 +348,7 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		filterCodeRef().edit(1)`{\n    "name": "some_state",\n    "frequency_hours": 1${insert(',\n    "debounce_method": "delayed"')}\n}`,
 		platformRef().fill((catalogue_color.fill), 1),
-		);
+	);
 
 	// So instead, let's hold onto the value until the alloted time and send it on it's way after. This achieves the same effect- but allows us to be "in sync"
 	yield* beginSlide("debounceDelayInSync");
