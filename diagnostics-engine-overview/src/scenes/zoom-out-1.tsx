@@ -278,18 +278,18 @@ export default makeScene2D(function* (view) {
 	yield* engine_layout_ref().opacity(1, 0.5);
 	yield* waitFor(0.5);
 	yield* all(
-		drawArrow(connect_platinumPro_ref(), {ref: client_platinumPro_ref(), position: "bottom"}, {ref: engine_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
-		delay(0.3, drawArrow(connect_bot_ref(), {ref: client_bot_ref(), position: "bottom"}, {ref: engine_ref(), position: "top", offset:[80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"})),
-		delay(0.7, drawArrow(connect_myAccount_ref(), {ref: client_myAccount_ref(), position: "bottom"}, {ref: engine_ref(), position: "top", offset:[-80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		drawArrow(connect_platinumPro_ref, {ref: client_platinumPro_ref, position: "bottom"}, {ref: engine_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+		delay(0.3, drawArrow(connect_bot_ref, {ref: client_bot_ref, position: "bottom"}, {ref: engine_ref, position: "top", offset:[80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		delay(0.7, drawArrow(connect_myAccount_ref, {ref: client_myAccount_ref, position: "bottom"}, {ref: engine_ref, position: "top", offset:[-80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"})),
 	);
 
 	yield* beginSlide("engineReplies");
 	yield* all(
 		engine_gear_ref().rotation(easeInOutCubic(1) * 360, 2),
 		delay(1.75, all(
-			drawArrow(connect_platinumPro_ref(), {ref: engine_ref(), position: "top"}, {ref: client_platinumPro_ref(), position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
-			delay(0.3, drawArrow(connect_bot_ref(), {ref: engine_ref(), position: "top", offset:[80, 0]}, {ref: client_bot_ref(), position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
-			delay(0.7, drawArrow(connect_myAccount_ref(), {ref: engine_ref(), position: "top", offset:[-80, 0]}, {ref: client_myAccount_ref(), position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
+			drawArrow(connect_platinumPro_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
+			delay(0.3, drawArrow(connect_bot_ref, {ref: engine_ref, position: "top", offset:[80, 0]}, {ref: client_bot_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
+			delay(0.7, drawArrow(connect_myAccount_ref, {ref: engine_ref, position: "top", offset:[-80, 0]}, {ref: client_myAccount_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
 		)),
 	);
 
@@ -305,11 +305,11 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("helpersAsked");
 	// It will ask those helpers for current and historical information about the panel
 
-	yield* drawArrow(connect_platinumPro_ref(), {ref: client_platinumPro_ref(), position: "bottom"}, {ref: engine_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+	yield* drawArrow(connect_platinumPro_ref, {ref: client_platinumPro_ref, position: "bottom"}, {ref: engine_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
 	yield* all(
-		drawArrow(connect_chatter_spy_ref(), {ref: engine_ref(), position: "bottom", offset:[-80, 0]}, {ref: chatter_spy_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
-		delay(0.3, drawArrow(connect_panel_ref(), {ref: engine_ref(), position: "bottom"}, {ref: panel_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
-		delay(0.7, drawArrow(connect_snowflake_ref(), {ref: engine_ref(), position: "bottom", offset:[80, 0]}, {ref: snowflake_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		drawArrow(connect_chatter_spy_ref, {ref: engine_ref, position: "bottom", offset:[-80, 0]}, {ref: chatter_spy_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+		delay(0.3, drawArrow(connect_panel_ref, {ref: engine_ref, position: "bottom"}, {ref: panel_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		delay(0.7, drawArrow(connect_snowflake_ref, {ref: engine_ref, position: "bottom", offset:[80, 0]}, {ref: snowflake_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
 	);
 
 	yield* beginSlide("helpersReply");
@@ -321,24 +321,24 @@ export default makeScene2D(function* (view) {
 				yield* chatter_spy_hat_ref().y(chatter_spy_hat_ref().y() - 10, 0.1);
 				yield* chatter_spy_hat_ref().y(chatter_spy_hat_ref().y() + 10, 0.1);
 			}),
-			drawArrow(connect_chatter_spy_ref(), {ref: chatter_spy_ref(), position: "top"}, {ref: engine_ref(), position: "bottom", offset:[-80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+			drawArrow(connect_chatter_spy_ref, {ref: chatter_spy_ref, position: "top"}, {ref: engine_ref, position: "bottom", offset:[-80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
 		),
 		delay(0.3, chain(
 			loop(2, function*() {
 				yield* panel_body_ref().rotation(10, 0.1);
 				yield* panel_body_ref().rotation(0, 0.1);
 			}),
-			drawArrow(connect_panel_ref(), {ref: panel_ref(), position: "top"}, {ref: engine_ref(), position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+			drawArrow(connect_panel_ref, {ref: panel_ref, position: "top"}, {ref: engine_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
 		)),
 		delay(0.7, chain(
 			loop(2, function*() {
 				yield* snowflake_body_ref().rotation(10, 0.1);
 				yield* snowflake_body_ref().rotation(0, 0.1);
 			}),
-			drawArrow(connect_snowflake_ref(), {ref: snowflake_ref(), position: "top"}, {ref: engine_ref(), position: "bottom", offset:[80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+			drawArrow(connect_snowflake_ref, {ref: snowflake_ref, position: "top"}, {ref: engine_ref, position: "bottom", offset:[80, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
 		)),
-		// delay(0.3, drawArrow(connect_panel_ref(), {ref: engine_ref(), position: "bottom"}, {ref: panel_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
-		// delay(0.7, drawArrow(connect_snowflake_ref(), {ref: engine_ref(), position: "bottom", offset:[80, 0]}, {ref: snowflake_ref(), position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		// delay(0.3, drawArrow(connect_panel_ref, {ref: engine_ref, position: "bottom"}, {ref: panel_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		// delay(0.7, drawArrow(connect_snowflake_ref, {ref: engine_ref, position: "bottom", offset:[80, 0]}, {ref: snowflake_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
 	);
 	
 	yield* beginSlide("engineReplies2");
@@ -348,7 +348,7 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		engine_gear_ref().rotation(easeInOutCubic(1) * 360, 2),
 		delay(1.75, all(
-			drawArrow(connect_platinumPro_ref(), {ref: engine_ref(), position: "top"}, {ref: client_platinumPro_ref(), position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
+			drawArrow(connect_platinumPro_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
 		)),
 	);
 

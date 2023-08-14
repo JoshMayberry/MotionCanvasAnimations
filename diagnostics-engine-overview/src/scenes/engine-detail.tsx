@@ -1,10 +1,10 @@
 import {makeScene2D} from '@motion-canvas/2d/lib/scenes';
 import {Circle, Txt, Line, Rect, Layout, Path} from '@motion-canvas/2d/lib/components';
-import {createSignal} from '@motion-canvas/core/lib/signals';
+import {DEFAULT, createSignal} from '@motion-canvas/core/lib/signals';
 import {BBox, Direction, Vector2} from '@motion-canvas/core/lib/types';
-import {all, waitUntil} from '@motion-canvas/core/lib/flow';
+import {all, chain, delay, sequence, waitUntil} from '@motion-canvas/core/lib/flow';
 import {ThreadGenerator, clampRemap, easeInOutCubic, slideTransition, useDuration, useScene, useTransition, linear, useLogger, zoomInTransition, beginSlide, createRef} from '@motion-canvas/core';
-import {drawArrow, catalogue_color} from "./utils";
+import {drawArrow, catalogue_color, hopIn} from "./utils";
 
 export default makeScene2D(function* (view) {
 	const logger = useLogger();
@@ -19,29 +19,33 @@ export default makeScene2D(function* (view) {
 	const forklift_body_ref = createRef<Path>();
 	const forklift_lift_ref = createRef<Path>();
 	
-	const filter_layout_ref = createRef<Layout>();
-	const filter_ref = createRef<Rect>();
-	const filter_body_ref = createRef<Path>();
-	
 	const robot_layout_ref = createRef<Layout>();
 	const robot_ref = createRef<Rect>();
 	const robot_body_ref = createRef<Path>();
+	
+	const filter_layout_ref = createRef<Layout>();
+	const filter_ref = createRef<Rect>();
+	const filter_body_ref = createRef<Path>();
 	
 	const barChart_layout_ref = createRef<Layout>();
 	const barChart_ref = createRef<Rect>();
 	const barChart_body_ref = createRef<Path>();
 	
-	const pivotChart_layout_ref = createRef<Layout>();
-	const pivotChart_ref = createRef<Rect>();
-	const pivotChart_body_ref = createRef<Path>();
-	
 	const scatterChart_layout_ref = createRef<Layout>();
 	const scatterChart_ref = createRef<Rect>();
 	const scatterChart_body_ref = createRef<Path>();
 	
+	const pivotChart_layout_ref = createRef<Layout>();
+	const pivotChart_ref = createRef<Rect>();
+	const pivotChart_body_ref = createRef<Path>();
+	
 	const troubleshoot_layout_ref = createRef<Layout>();
 	const troubleshoot_ref = createRef<Rect>();
 	const troubleshoot_body_ref = createRef<Path>();
+
+	const connect_1_ref = createRef<Line>();
+	const connect_2_ref = createRef<Line>();
+	const connect_3_ref = createRef<Line>();
 
 	view.add(
 		<>
@@ -49,7 +53,7 @@ export default makeScene2D(function* (view) {
 				y={-300}
 				x={-400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={operator_ref}
 					width={200}
@@ -81,7 +85,7 @@ export default makeScene2D(function* (view) {
 				y={-300}
 				x={400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={forklift_ref}
 					width={200}
@@ -113,7 +117,7 @@ export default makeScene2D(function* (view) {
 				y={300}
 				x={400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={filter_ref}
 					width={200}
@@ -133,10 +137,9 @@ export default makeScene2D(function* (view) {
 			</Layout>
 
 			<Layout ref={robot_layout_ref}
-				// y={-300}
 				x={400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={robot_ref}
 					width={200}
@@ -156,10 +159,8 @@ export default makeScene2D(function* (view) {
 			</Layout>
 
 			<Layout ref={barChart_layout_ref}
-				// y={-300}
-				// x={-400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={barChart_ref}
 					width={200}
@@ -182,7 +183,7 @@ export default makeScene2D(function* (view) {
 				y={300}
 				x={-400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={pivotChart_ref}
 					width={200}
@@ -203,9 +204,8 @@ export default makeScene2D(function* (view) {
 
 			<Layout ref={scatterChart_layout_ref}
 				y={300}
-				// x={-400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={scatterChart_ref}
 					width={200}
@@ -225,10 +225,9 @@ export default makeScene2D(function* (view) {
 			</Layout>
 
 			<Layout ref={troubleshoot_layout_ref}
-				// y={-300}
 				x={-400}
 				scale={0.8}
-				// opacity={0}
+				opacity={0}
 			>
 				<Rect ref={troubleshoot_ref}
 					width={200}
@@ -247,17 +246,8 @@ export default makeScene2D(function* (view) {
 				</Layout>
 			</Layout>
 
-			{/* <Layout>
-				<Line ref={connect_platinumPro_ref}
-					lineWidth={8}
-					stroke={catalogue_color.outline}
-					startOffset={10}
-					endOffset={10}
-					// radius={80}
-					points={[0,0]}
-				/>
-
-				<Line ref={connect_bot_ref}
+			<Layout>
+				<Line ref={connect_1_ref}
 					lineWidth={8}
 					stroke={catalogue_color.outline}
 					startOffset={10}
@@ -266,7 +256,7 @@ export default makeScene2D(function* (view) {
 					points={[0,0]}
 				/>
 
-				<Line ref={connect_myAccount_ref}
+				<Line ref={connect_2_ref}
 					lineWidth={8}
 					stroke={catalogue_color.outline}
 					startOffset={10}
@@ -275,7 +265,7 @@ export default makeScene2D(function* (view) {
 					points={[0,0]}
 				/>
 
-				<Line ref={connect_chatter_spy_ref}
+				<Line ref={connect_3_ref}
 					lineWidth={8}
 					stroke={catalogue_color.outline}
 					startOffset={10}
@@ -283,32 +273,85 @@ export default makeScene2D(function* (view) {
 					radius={20}
 					points={[0,0]}
 				/>
-
-				<Line ref={connect_panel_ref}
-					lineWidth={8}
-					stroke={catalogue_color.outline}
-					startOffset={10}
-					endOffset={10}
-					radius={20}
-					points={[0,0]}
-				/>
-
-				<Line ref={connect_snowflake_ref}
-					lineWidth={8}
-					stroke={catalogue_color.outline}
-					startOffset={10}
-					endOffset={10}
-					radius={20}
-					points={[0,0]}
-				/>
-			</Layout> */}
+			</Layout>
 		</>,
 	);
-
 	
 	view.fill('#242424'); // set the background of this scene
-
 	yield* zoomInTransition(new BBox(0, -50, 130, 130), 1);
+
+	yield* beginSlide("iconsAppear");
+	// The engine is actually a lot of separate compnents that specialize in a specific task
+	yield* all(
+		hopIn(forklift_layout_ref()),
+		delay(0.25, hopIn(robot_layout_ref())),
+		delay(0.5, hopIn(filter_layout_ref())),
+		delay(0.5, hopIn(barChart_layout_ref())),
+		delay(0.75, hopIn(scatterChart_layout_ref())),
+		delay(0.75, hopIn(troubleshoot_layout_ref())),
+		delay(1, hopIn(operator_layout_ref())),
+		delay(1, hopIn(pivotChart_layout_ref())),
+	);
+
+	yield* beginSlide("operatorGetsMessage");
+	// One component recieved the message
+	yield* drawArrow(connect_1_ref, {ref: operator_ref, position: "top", offset: [0, -150]}, {ref: operator_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"})
+
+	yield* beginSlide("operatorTellsForklift");
+	// And tells another piece to gather the data it needs for the request
+	yield* all(
+		chain(
+			operator_eyes_ref().x(operator_eyes_ref().x() + 10, 0.2),
+			operator_eyes_ref().x(DEFAULT, 0.2),
+		),
+		delay(0.1, drawArrow(connect_1_ref, {ref: operator_ref, position: "right"}, {ref: forklift_ref, position: "left"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+	);
+	yield* all(
+		drawArrow(connect_1_ref, {ref: forklift_ref, position: "top"}, {ref: forklift_ref, position: "top", offset: [0, -150]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+		drawArrow(connect_2_ref, {ref: forklift_ref, position: "topRight"}, {ref: forklift_ref, position: "topRight", offset: [150, -150]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+		drawArrow(connect_3_ref, {ref: forklift_ref, position: "right"}, {ref: forklift_ref, position: "right", offset: [150, 0]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+	);
+
+	yield* beginSlide("forkliftGetsMessage");
+	// It gets the information back
+	yield* all(
+		drawArrow(connect_1_ref, {ref: forklift_ref, position: "top", offset: [0, -150]}, {ref: forklift_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+		delay(0.2, drawArrow(connect_2_ref, {ref: forklift_ref, position: "topRight", offset: [150, -150]}, {ref: forklift_ref, position: "topRight"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+		delay(0.4, drawArrow(connect_3_ref, {ref: forklift_ref, position: "right", offset: [150, 0]}, {ref: forklift_ref, position: "right"}, {timespan: 0.5, lag: 0.3, direction: "end"})),
+	);
+
+	yield* beginSlide("networkStart");
+	// It sends the info through the network
+	yield* all(
+		forklift_lift_ref().y(forklift_lift_ref().y() - 20, 0.5, easeInOutCubic),
+		delay(0.5, forklift_lift_ref().y(DEFAULT, 0.5, easeInOutCubic)),
+		chain( 
+			drawArrow(connect_1_ref, {ref: forklift_ref, position: "bottom"}, {ref: robot_ref, position: "top"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+			all(
+				chain( 
+					drawArrow(connect_1_ref, {ref: robot_ref, position: "left"}, {ref: barChart_ref, position: "right"}, {timespan: 0.5, lag: 0.4, direction: "end"}),
+					drawArrow(connect_3_ref, {ref: barChart_ref, position: "left"}, {ref: troubleshoot_ref, position: "right"}, {timespan: 0.4, lag: 0.2, direction: "end"}),
+				),
+				delay(0.1, chain( 
+					drawArrow(connect_2_ref, {ref: robot_ref, position: "bottom"}, {ref: filter_ref, position: "top"}, {timespan: 0.4, lag: 0.3, direction: "end"}),
+					drawArrow(connect_2_ref, {ref: filter_ref, position: "left"}, {ref: scatterChart_ref, position: "right"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+					drawArrow(connect_2_ref, {ref: scatterChart_ref, position: "left"}, {ref: pivotChart_ref, position: "right"}, {timespan: 0.3, lag: 0.2, direction: "end"}),
+					drawArrow(connect_2_ref, {ref: pivotChart_ref, position: "top"}, {ref: troubleshoot_ref, position: "bottom"}, {timespan: 0.4, lag: 0.3, direction: "end"}),
+				)),
+			),
+			drawArrow(connect_1_ref, {ref: troubleshoot_ref, position: "top"}, {ref: operator_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+		)
+	);
+
+	yield* beginSlide("operatorSendsAnswer");
+	// Eventually, the final piece makes it to the component talking with the client and the reply is sent back to them
+	yield* all(
+		chain(
+			operator_eyes_ref().y(operator_eyes_ref().y() - 10, 0.2),
+			operator_eyes_ref().y(DEFAULT, 0.2),
+		),
+		drawArrow(connect_1_ref, {ref: operator_ref, position: "top"}, {ref: operator_ref, position: "top", offset: [0, -150]}, {timespan: 0.5, lag: 0.3, direction: "end"}),
+	);
 
 	yield* beginSlide("end");
 
