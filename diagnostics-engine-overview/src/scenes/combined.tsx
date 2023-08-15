@@ -532,9 +532,9 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		engine_gear_ref().rotation(easeInOutCubic(1) * 360, 2),
 		delay(1.75, all(
-			drawArrow(connect_1_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
-			delay(0.3, drawArrow(connect_2_ref, {ref: engine_ref, position: "top", offset:[80, 0]}, {ref: client_bot_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
-			delay(0.7, drawArrow(connect_3_ref, {ref: engine_ref, position: "top", offset:[-80, 0]}, {ref: client_myAccount_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
+			drawArrow(connect_1_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"}),
+			delay(0.3, drawArrow(connect_2_ref, {ref: engine_ref, position: "top", offset:[80, 0]}, {ref: client_bot_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"})),
+			delay(0.7, drawArrow(connect_3_ref, {ref: engine_ref, position: "top", offset:[-80, 0]}, {ref: client_myAccount_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"})),
 		)),
 	);
 
@@ -593,7 +593,7 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		engine_gear_ref().rotation(easeInOutCubic(1) * 360, 2),
 		delay(1.75, all(
-			drawArrow(connect_1_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
+			drawArrow(connect_1_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"}),
 		)),
 	);
 
@@ -691,7 +691,7 @@ export default makeScene2D(function* (view) {
 					engine_gear_ref().rotation(easeOutCubic(1) * 90, 0.5),
 					engine_gear_ref().opacity(1, 1),
 				),
-				drawArrow(connect_1_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
+				drawArrow(connect_1_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"}),
 			))
 		)),
 	);

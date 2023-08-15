@@ -1,5 +1,5 @@
 import { Layout, Line } from "@motion-canvas/2d";
-import { DEFAULT, PossibleVector2, Reference, ThreadGenerator, Vector2, all, delay } from "@motion-canvas/core";
+import { DEFAULT, PossibleVector2, Reference, SimpleSignal, ThreadGenerator, Vector2, all, delay } from "@motion-canvas/core";
 
 export const catalogue_color = {
 	vivint_orange: "#F67E20",
@@ -9,6 +9,8 @@ export const catalogue_color = {
 	background: "#242424",
 	background_2: "#3C3B3D",
 	paper: "#1E1E1F",
+	bad_fill: "#f99096",
+	bad_outline: "#83070e",
 }
 
 export interface Connection {
@@ -33,24 +35,49 @@ export function positionLocalToLocal(ref_line:Reference<Line>, connection_destin
 	return answer;
 }
 
+export interface drawArrow_options {
+	timespan?: number,
+	lag?: number,
+	direction?: "start" | "end",
+	bend?: "horizontal" | "vertical",
+	delta_divisior?: number,
+	signal?: SimpleSignal<number, void>,
+}
+
 export function* drawArrow(ref_line:Reference<Line>, connection_source: Connection, connection_destination: Connection, {
 	timespan=0.5,
 	lag=0.3,
-	direction="",
+	direction="end",
+	bend="vertical",
 	delta_divisior=3,
-}={}): ThreadGenerator {
+	signal,
+}:drawArrow_options ={}): ThreadGenerator {
 	// Determine Path
 	const point_source = positionLocalToLocal(ref_line, connection_source);
 	const point_destination = positionLocalToLocal(ref_line, connection_destination);
 
 	const pointList = [point_source];
-	if (point_source.x != point_destination.x) {
-		const y_delta = (point_destination.y - point_source.y) / delta_divisior;
 
-		pointList.push(point_source.add([0, y_delta]))
-		pointList.push(point_destination.add([0, -y_delta]))
+	switch (bend) {
+		case "vertical":
+			if (point_source.x != point_destination.x) {
+				const y_delta = (point_destination.y - point_source.y) / delta_divisior;
+		
+				pointList.push(point_source.add([0, y_delta]))
+				pointList.push(point_destination.add([0, -y_delta]))
+			}
+			break;
+		
+		case "horizontal":
+			if (point_source.y != point_destination.y) {
+				const x_delta = (point_destination.x - point_source.x) / delta_divisior;
+		
+				pointList.push(point_source.add([x_delta, 0]))
+				pointList.push(point_destination.add([-x_delta, 0]))
+			}
+			break;
+
 	}
-
 	pointList.push(point_destination);
 
 	// Reset Line
@@ -63,15 +90,21 @@ export function* drawArrow(ref_line:Reference<Line>, connection_source: Connecti
 
 	ref_line().points(pointList);
 
+	if (signal != null) {
+		signal(0);
+	}
+
 	// Animate Line
 	if (is_start) {
 		yield* all(
+			(signal == null ? null : signal(1, timespan)),
 			ref_line().end(1, timespan),
 			delay(lag, ref_line().start(1, timespan)),
 		);
 	}
 	else {
 		yield* all(
+			(signal == null ? null : signal(1, timespan)),
 			ref_line().start(1, timespan),
 			delay(lag, ref_line().end(1, timespan)),
 		);
@@ -94,6 +127,6 @@ export function* hopOut(layout_ref: Layout, time: number = 1, distance: number =
 		layout_ref.opacity(0, time),
 		layout_ref.y(layout_ref.y() - distance, time),
 	);
-	
+
 	layout_ref.y(layout_ref.y() + distance);
 }
