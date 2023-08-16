@@ -1,6 +1,6 @@
 import {Circle, Layout, Line, Path, Rect, Txt, makeScene2D} from '@motion-canvas/2d';
 import {DEFAULT, PossibleVector2, SimpleVector2Signal, ThreadGenerator, Vector2, all, beginSlide, chain, createRef, delay, easeInOutCubic, easeOutCubic, loop, loopFor, sequence, useLogger, waitFor} from '@motion-canvas/core';
-import {drawArrow, catalogue_color, hopIn, hopOut} from "./utils";
+import {drawArrow, catalogue_color, hopIn, hopOut} from "../utils";
 import { CameraView } from "@ksassnowski/motion-canvas-camera";
 
 export default makeScene2D(function* (view) {

@@ -4,7 +4,7 @@ import {DEFAULT, createSignal} from '@motion-canvas/core/lib/signals';
 import {BBox, Direction, Vector2} from '@motion-canvas/core/lib/types';
 import {all, chain, delay, sequence, waitUntil} from '@motion-canvas/core/lib/flow';
 import {ThreadGenerator, clampRemap, easeInOutCubic, slideTransition, useDuration, useScene, useTransition, linear, useLogger, zoomInTransition, beginSlide, createRef} from '@motion-canvas/core';
-import {drawArrow, catalogue_color, hopIn} from "./utils";
+import {drawArrow, catalogue_color, hopIn} from "../utils";
 
 export default makeScene2D(function* (view) {
 	const logger = useLogger();

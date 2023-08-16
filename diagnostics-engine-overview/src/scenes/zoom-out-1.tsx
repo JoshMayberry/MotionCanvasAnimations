@@ -1,6 +1,6 @@
 import {Circle, Layout, Line, Path, Rect, Txt, makeScene2D} from '@motion-canvas/2d';
 import {DEFAULT, PossibleVector2, SimpleVector2Signal, ThreadGenerator, Vector2, all, beginSlide, chain, createRef, delay, easeInOutCubic, loop, loopFor, useLogger, waitFor} from '@motion-canvas/core';
-import {drawArrow, catalogue_color} from "./utils";
+import {drawArrow, catalogue_color} from "../utils";
 
 export default makeScene2D(function* (view) {
 	const logger = useLogger();
@@ -287,9 +287,9 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		engine_gear_ref().rotation(easeInOutCubic(1) * 360, 2),
 		delay(1.75, all(
-			drawArrow(connect_platinumPro_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
-			delay(0.3, drawArrow(connect_bot_ref, {ref: engine_ref, position: "top", offset:[80, 0]}, {ref: client_bot_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
-			delay(0.7, drawArrow(connect_myAccount_ref, {ref: engine_ref, position: "top", offset:[-80, 0]}, {ref: client_myAccount_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "})),
+			drawArrow(connect_platinumPro_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"}),
+			delay(0.3, drawArrow(connect_bot_ref, {ref: engine_ref, position: "top", offset:[80, 0]}, {ref: client_bot_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"})),
+			delay(0.7, drawArrow(connect_myAccount_ref, {ref: engine_ref, position: "top", offset:[-80, 0]}, {ref: client_myAccount_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"})),
 		)),
 	);
 
@@ -348,7 +348,7 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		engine_gear_ref().rotation(easeInOutCubic(1) * 360, 2),
 		delay(1.75, all(
-			drawArrow(connect_platinumPro_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start "}),
+			drawArrow(connect_platinumPro_ref, {ref: engine_ref, position: "top"}, {ref: client_platinumPro_ref, position: "bottom"}, {timespan: 0.5, lag: 0.3, direction: "start"}),
 		)),
 	);
 
