@@ -51,6 +51,7 @@ export default makeScene2D(function* (view) {
 
 	const phone_layout_ref = createRef<Layout>();
 	const phone_ref = createRef<Rect>();
+	const phone_vivintApp_ref = createRef<Layout>();
 	const phone_diagnostics_ref = createRef<Layout>();
 	const phone_call_ref = createRef<Path>();
 
@@ -129,6 +130,26 @@ export default makeScene2D(function* (view) {
 							fill={catalogue_color.fill}
 							radius={10}
 						/>
+						<Layout
+							scale={0.5}
+							x={90}
+							y={50}
+						>
+							<Path
+								fill={catalogue_color.paper}
+								data={"M162.83,88.84l94,87.73v111h-188v-111l94-87.73m0-88.83A14.38,14.38,0,0,0,153,3.91L9.2,138.08A29,29,0,0,0,0,159.24V342a14.47,14.47,0,0,0,14.48,14.47H311.17A14.47,14.47,0,0,0,325.65,342h0V159.23a29,29,0,0,0-9.2-21.16L172.7,3.9A14.39,14.39,0,0,0,162.82,0Z"}
+								scale={0.2}
+								x={-40}
+								y={-35}
+							/>
+							<Circle
+								fill={catalogue_color.paper}
+								width={20}
+								height={20}
+								x={38}
+								y={25}
+							/>
+						</Layout>
 					</Layout>
 
 					<Layout ref={wifi_layout_ref}
@@ -310,6 +331,7 @@ export default makeScene2D(function* (view) {
 
 				<Layout ref={scenario_phone_ref}
 					opacity={0}
+					y={200}
 				>
 					<Layout ref={phone_layout_ref}
 						x={-580}
@@ -327,6 +349,27 @@ export default makeScene2D(function* (view) {
 							fill={catalogue_color.fill}
 							radius={10}
 						/>
+						<Layout ref={phone_vivintApp_ref}
+							scale={1}
+							x={0}
+							y={0}
+							opacity={0}
+						>
+							<Path
+								fill={catalogue_color.paper}
+								data={"M162.83,88.84l94,87.73v111h-188v-111l94-87.73m0-88.83A14.38,14.38,0,0,0,153,3.91L9.2,138.08A29,29,0,0,0,0,159.24V342a14.47,14.47,0,0,0,14.48,14.47H311.17A14.47,14.47,0,0,0,325.65,342h0V159.23a29,29,0,0,0-9.2-21.16L172.7,3.9A14.39,14.39,0,0,0,162.82,0Z"}
+								scale={0.2}
+								x={-40}
+								y={-35}
+							/>
+							<Circle
+								fill={catalogue_color.paper}
+								width={20}
+								height={20}
+								x={38}
+								y={25}
+							/>
+						</Layout>
 						<Layout ref={phone_diagnostics_ref}
 							opacity={0}
 						>
@@ -759,17 +802,22 @@ export default makeScene2D(function* (view) {
 		scenario_panel_ref().y(-300, 1),
 		panel_layout_ref().opacity(0.25, 1),
 		clock_layout_ref().opacity(0.25, 1),
-		scenario_phone_ref().opacity(1, 1),
-		scenario_phone_ref().y(200, 1),
 	)
 
 	yield* beginSlide("wifiError4");
 	// A customer notices something is wrong with their system- but they don't know what
 	yield* wifiError(true),
-	
+
+	yield* beginSlide("phoneAppears")
+	// So they pull out their phone
+	yield* scenario_phone_ref().opacity(1, 1);
+
+	yield* beginSlide("open app")
+	// and use the vivint app
+	yield* phone_vivintApp_ref().opacity(1, 1),
 
 	yield* beginSlide("customerFixesIt_sendMessage");
-	// So they use their phone to get a list of all the issues their system has- with links on how to fix the issue
+	// to communicate with this little box
 	yield* all(
 		finger_layout_ref().opacity(1, 0.5),
 		finger_layout_ref().y(finger_layout_ref().y() - 80, 1),
@@ -797,14 +845,14 @@ export default makeScene2D(function* (view) {
 	yield* eyeLook("top");
 
 	yield* beginSlide("customerFixesIt_sendReply");
-	// Thinks about it and helps the user out
+	// Thinks about it and returns list of all the issues their system has- with links on how to fix the issue
 	yield* chain(
 		eyeLook(),
 		gearSpin(),
 		all(
 			sendDocument({ref: eye_ref, position: "left"}, {ref: phone_ref, position: "right"}),
-			// drawArrow(connect_1_ref, {ref: eye_ref, position: "left"}, {ref: phone_ref, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),
-			delay(0.8, phone_diagnostics_ref().opacity(1, 0.5)),
+			delay(0.8, phone_vivintApp_ref().opacity(0, 0.5)),
+			delay(1.3, phone_diagnostics_ref().opacity(1, 0.5)),
 		),
 	);
 
