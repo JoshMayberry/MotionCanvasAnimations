@@ -39,7 +39,7 @@ export interface drawArrow_options {
 	timespan?: number,
 	lag?: number,
 	direction?: "start" | "end",
-	bend?: "horizontal" | "vertical",
+	bend?: "horizontal" | "vertical" | "none",
 	delta_divisior?: number,
 	signal?: SimpleSignal<number, void>,
 }
@@ -75,6 +75,9 @@ export function* drawArrow(ref_line:Reference<Line>, connection_source: Connecti
 				pointList.push(point_source.add([x_delta, 0]))
 				pointList.push(point_destination.add([-x_delta, 0]))
 			}
+			break;
+		
+		case "none":
 			break;
 
 	}
