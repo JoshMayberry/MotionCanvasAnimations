@@ -12,6 +12,7 @@ export default defineConfig({
       project: [
         "./src/client-usage.ts",
         "./src/how-it-works.ts",
+        "./src/natural-language.ts",
       ]
     }),
     ffmpeg(),

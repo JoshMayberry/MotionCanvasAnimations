@@ -7,17 +7,17 @@ import {Logger, ThreadGenerator, beginSlide, createRef, easeInCubic, easeInOutCu
 import { CodeBlock, edit, insert, lines } from "@motion-canvas/2d/lib/components/CodeBlock";
 import { arcTo } from "@motion-canvas/2d";
 
+import { Paper } from "../../../diagnostics-engine-overview/src/components/Paper"
+
 export default makeScene2D(function* (view) {
 	const packetRef = createRef<Circle>();
 	const packet2Ref = createRef<Circle>();
 	const panelRef = createRef<Layout>();
-	const paper1Ref = createRef<Layout>();
-	const paper2Ref = createRef<Layout>();
+	const paperMainRef = createRef<Paper>();
+	const paperFilterRef = createRef<Paper>();
 	const panelScreenRef = createRef<Rect>();
 	const platformRef = createRef<Path>();
 	const debounceRef = createRef<Rect>();
-	const mainCodeRef = createRef<CodeBlock>();
-	const filterCodeRef = createRef<CodeBlock>();
 	const panelCodeRef = createRef<CodeBlock>();
 
 	const logger = useLogger();
@@ -41,57 +41,22 @@ export default makeScene2D(function* (view) {
 
 	view.add(
 		<>
-			<Layout
-				ref={paper1Ref}
+			<Paper
+				ref={paperMainRef}
 				opacity={0}
 				y={-140}
 				x={-500}
-			>
-				<Rect
-					width={900}
-					height={400}
-					fill={catalogue_color.paper}
-					radius={10}
-				/>
-				<Txt
-					size={12}
-					y={-250}
-					x={-440}
-					fill={catalogue_color.outline}
-					text={"some_file.py"}
-				/>
-				<CodeBlock
-					language="python"
-					ref={mainCodeRef}
-					code={""}
-				/>
-			</Layout>
-			
-			<Layout
-				ref={paper2Ref}
+				name="some_file.py"
+				language="python"
+			/>
+			<Paper
+				ref={paperFilterRef}
 				opacity={0}
 				y={-140}
-				x={500}
-			>
-				<Rect
-					width={900}
-					height={400}
-					fill={catalogue_color.paper}
-					radius={10}
-				/>
-				<Txt
-					size={12}
-					y={-250}
-					x={-440}
-					fill={catalogue_color.outline}
-					text={"default_notify_filter.json"}
-				/>
-				<CodeBlock
-					language="python"
-					ref={filterCodeRef}
-					code={""}
-					/>
-			</Layout>
+				x={-500}
+				name="default_notify_filter.py"
+				language="python"
+			/>
 
 			<Layout>
 				<Layout
@@ -311,10 +276,10 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("addServiceProperty");
 	// We can watch these changes
 	yield* all(
-		paper1Ref().opacity(1, 0.5),
-		paper2Ref().opacity(1, 0.5),
-		mainCodeRef().edit(1)`${insert("@service_property(notify=True)\ndef some_state(self): pass")}`,
-		filterCodeRef().edit(1)`${insert('"some_state"')}`,
+		paperMainRef().opacity(1, 0.5),
+		paperFilterRef().opacity(1, 0.5),
+		paperMainRef().codeRef().edit(1)`${insert("@service_property(notify=True)\ndef some_state(self): pass")}`,
+		paperFilterRef().codeRef().edit(1)`${insert('"some_state"')}`,
 	);
 
 	yield* beginSlide("firstSend");
@@ -328,8 +293,8 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("debounceIgnore");
 	// So we can throttle them. Now, only the first change gests sent and we wait until we can send another
 	yield* all(
-		filterCodeRef().edit(1 )`${insert('{\n    "name": ')}"some_state"${insert(',\n    "frequency_hours": 1\n}')}`,
-		mainCodeRef().selection([], 1),
+		paperFilterRef().codeRef().edit(1 )`${insert('{\n    "name": ')}"some_state"${insert(',\n    "frequency_hours": 1\n}')}`,
+		paperMainRef().codeRef().selection([], 1),
 	);
 
 	yield* toggleValue({method: "ignore", speed_send: 2});
@@ -346,7 +311,7 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("debounceDelay");
 	// So instead, let's use a different debounce method that we will call "delayed"
 	yield* all(
-		filterCodeRef().edit(1)`{\n    "name": "some_state",\n    "frequency_hours": 1${insert(',\n    "debounce_method": "delayed"')}\n}`,
+		paperFilterRef().codeRef().edit(1)`{\n    "name": "some_state",\n    "frequency_hours": 1${insert(',\n    "debounce_method": "delayed"')}\n}`,
 		platformRef().fill((catalogue_color.fill), 1),
 	);
 
