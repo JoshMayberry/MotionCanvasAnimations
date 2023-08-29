@@ -249,7 +249,9 @@ export default makeScene2D(function* (view) {
 	}
 
 	function* sendWrench() {
-		yield* connect_wrench_ref().sendPayload({ref: panel_ref().blockRef, position: "left"}, {ref: wifi_ref().blockRef, position: "right"})
+		yield* all( connect_wrench_ref().sendPayload({ref: panel_ref().blockRef, position: "left"}, {ref: wifi_ref().blockRef, position: "right"}),
+			delay(0.7, wifiError(false)),
+		);
 	}
 
 	function* sendDocument(connection_source: Connection, connection_destination: Connection) {
@@ -438,7 +440,7 @@ export default makeScene2D(function* (view) {
 
 	yield* beginSlide("wifiError5");
 	// Customer notices the error
-	yield* wifiError(true)
+	yield* wifiError(true);
 
 	yield* beginSlide("customerCalls_begin");
 	// and calls our support team
@@ -483,6 +485,7 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("grayAllOut");
 	// The key here is the little box- the diagnostic engine. We are working on building this.
 	yield* all(
+		wifiError(false),
 		phoneBlock_layout_ref().opacity(0.25, 1),
 		wifi_ref().opacity(0.25, 1),
 		history_ref().opacity(0.25, 1),
