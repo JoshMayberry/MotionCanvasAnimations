@@ -71,11 +71,13 @@ export default makeScene2D(function* (view) {
 						app="vivint"
 						x={-700}
 						y={300}
+						opacity={0}
 					/>
 
 					<Engine ref={engine_ref}
 						x={700}
 						y={300}
+						opacity={0}
 					/>
 
 					<Block ref={llmClient_ref}
@@ -104,6 +106,10 @@ export default makeScene2D(function* (view) {
 
 	yield* beginSlide("start");
 	// We have things that would use the diagnostics engine and the engine.
+	yield* all(
+		phone_ref().opacity(1, 1),
+		engine_ref().opacity(1, 1),
+	);
 
 	yield* beginSlide("paperAppears");
 	// These can talk to eachother by sending messages to each other in a specific format
