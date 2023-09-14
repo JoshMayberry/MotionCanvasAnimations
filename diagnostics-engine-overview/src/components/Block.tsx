@@ -1,4 +1,5 @@
 import {Layout, Node, NodeProps, Path, Rect, Txt} from '@motion-canvas/2d/lib/components';
+import { all } from '@motion-canvas/core';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createRef} from '@motion-canvas/core/lib/utils';
 
@@ -78,6 +79,18 @@ export class Block extends Node {
 					y={props?.path_offset || props?.path_offsetY || -60}
 				/>
 			</Layout>
+		);
+	}
+
+	public* width(size:number, duration:number) {
+		yield* all(
+			this.blockRef().width(size, duration),
+		);
+	}
+
+	public* height(size:number, duration:number) {
+		yield* all(
+			this.blockRef().height(size, duration),
 		);
 	}
 }
