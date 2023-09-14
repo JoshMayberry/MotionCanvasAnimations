@@ -13,6 +13,7 @@ export default defineConfig({
         "./src/client-usage.ts",
         "./src/how-it-works.ts",
         "./src/natural-language.ts",
+        "./src/innovation-photo.ts",
       ]
     }),
     ffmpeg(),
