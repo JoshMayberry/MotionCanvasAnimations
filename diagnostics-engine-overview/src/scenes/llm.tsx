@@ -94,7 +94,7 @@ export default makeScene2D(function* (view) {
 							opacity={0}
 						/>
 						<Paper ref={llmClientCode_ref}
-							name="GPT-4"
+							name="GPT-3.5"
 							language="yaml"
 							fontSize={8}
 							fontSize_label={8}

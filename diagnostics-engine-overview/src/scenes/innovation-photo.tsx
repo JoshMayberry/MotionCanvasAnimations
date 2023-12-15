@@ -1,8 +1,14 @@
-import {makeScene2D, Txt, Layout, Rect, Path, Line} from '@motion-canvas/2d';
-import { CodeBlock, insert } from '@motion-canvas/2d/lib/components/CodeBlock';
-import {Reference, ThreadGenerator, all, beginSlide, createRef, delay, fadeTransition, slideTransition} from '@motion-canvas/core';
+import {makeScene2D, Txt, Layout, Rect, Path, Line, Img, Video} from '@motion-canvas/2d';
+import { CodeBlock, edit, insert, remove } from '@motion-canvas/2d/lib/components/CodeBlock';
+import {Reference, ThreadGenerator, all, beginSlide, createRef, delay, fadeTransition, sequence, slideTransition, waitFor} from '@motion-canvas/core';
+
+import demoPhoto_src from "../media/photo2audio_photo.png"
+import demoAudio_src from "../media/photo2Audio_audio.mp4"
 
 export default makeScene2D(function* (view) {
+	const DemoImage = createRef<Img>();
+	const DemoAudio = createRef<Video>();
+
 	const ImageProcessor = createRef<Layout>();
 	const ChatGPT = createRef<Layout>();
 	const AudioGen = createRef<Layout>();
@@ -36,6 +42,18 @@ export default makeScene2D(function* (view) {
 
 	view.add(
 		<Layout>
+			<Img ref={DemoImage}
+				width={1800}
+				height={1000}
+				opacity={0}
+				src={demoPhoto_src}
+			/>
+			<Video ref={DemoAudio}
+				// opacity={0}
+				width={1}
+				height={1}
+				src={demoAudio_src}
+			/>
 			<Layout
 				x={-400}
 			>
@@ -172,7 +190,7 @@ export default makeScene2D(function* (view) {
 				opacity={0}
 			>
 				<Rect ref={PaperRect}
-					width={700}
+					width={750}
 					height={900}
 					fill={color_catalogue.paper}
 					radius={10}
@@ -235,112 +253,151 @@ export default makeScene2D(function* (view) {
 			Label().fill(RefFrom().fill(), lengthTime),
 			code,
 		);
-	}
+	}	
+
+	// Here's a demo of that working:
+	yield* fadeTransition(1);
+	yield* DemoImage().opacity(1, 1);
+
+	yield* beginSlide("playAudio");
+	DemoAudio().play();
+	yield* waitFor(10);
 
 	// Here's how this process works
-	yield* fadeTransition(1);
+	yield* beginSlide("demoFadeOut");
+	yield* all(
+		DemoImage().opacity(0, 1),
+		DemoAudio().opacity(0, 1),
+	)
 
-	// We have a doorbell camera
+	// The doorbell camera takes a picture
 	yield* beginSlide("doorbellAppears");
-	yield* Input().opacity(1, 1);
+	yield* sequence(0.25,
+		Input().opacity(1, 1),
+		UpdateLabel(InputRect, "Image Taken"),
+		Paper().opacity(1, 1),
+		UpdateCode(InputRect, PaperCode().edit(1, false)`${insert("imagePath")}`),
+	);
 
 	// The camera sends snapshot images to our server, which are intercepted by our code
 	yield* beginSlide("Cam2Code");
 	yield* all(
 		OurCode().opacity(1, 1),
-		Paper().opacity(1, 1),
 		delay(0.5, all(
 			DrawArrow(InputRect, OurCodeRect, "right", "left"),
-			delay(0.5, UpdateLabel(InputRect, "Image Recieved")),
+			delay(0.5, all(
+				UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("description = \n getDescription(")}imagePath${insert(")\n\nmessage = \n  askLLM(description)\n\naudioPath = \n  testToAudio(message)")}`),
+				UpdateLabel(InputRect, "Trigger Our Code"),
+			)),
 		)),
 	);
 	
-	// Our code [explain code]
+	// First, we want to interpret the image; things like what color of clothes they are wearing and what they are doing
 	yield* beginSlide("code1")
 	yield* all(
-		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("description = ip.get_description(image_path)\n")}`),
-		UpdateLabel(OurCodeRect, "Something"),
+		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${edit("description =\n getDescription(", "import requests\n\nbase64Image = encodeImage(\n  ")}imagePath${edit(")\n\nmessage = \n  askLLM(description)\n\naudioPath = \n  testToAudio(message)", "\n)\n\nheaders = { ... }\n\npayload = {\n  \"model\": \"gpt-4-vision\",\n  ...\n  \"image\": base64Image\n}")}`),
+		UpdateLabel(OurCodeRect, "Prep Request"),
 	);
 
-	// Which sends it to the image processor
+	// So we ask open ai to do that for us
 	yield* beginSlide("Code2Img")
 	yield* all(
 		ImageProcessor().opacity(1, 1),
 		delay(0.5, all(
 			DrawArrow(OurCodeRect, ImageProcessorRect, "bottomLeft", "topRight"),
+			UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${edit("import", "response =")} requests${edit("\n\nbase64Image = encodeImage", ".post")}(\n  ${edit("imagePath", "\"\"\"\n    https://")}\n${edit(")", "    api.openai.com/")}\n${insert("    v1/chat/completions\n  \"\"\",")}\n${insert("  headers=")}headers${insert(",")}${remove(" = { ... }\n")}\n${insert("  json=")}payload${remove(" = {\n  \"model\": \"gpt-4-vision\",\n  ...\n  \"image\": base64Image")}\n)`),
 			delay(0.5, UpdateLabel(OurCodeRect, "Image Sent to Processor")),
 		)),
 	);
 
-	// Which does stuff
-	yield* beginSlide("Img2Code")
+	// Which returns a list of attributes to us
+	yield* beginSlide("Img2Code.1")
 	yield* all(
-		UpdateCode(ImageProcessorRect, PaperCode().edit(1, false)`${insert("[Put code img\nprocess here]")}`),
-		delay(1, all(
-			DrawArrow(ImageProcessorRect, OurCodeRect, "topRight", "bottomLeft"),
-			delay(0.5, Label().text("Image Processed", 1)),
+		DrawArrow(ImageProcessorRect, OurCodeRect, "topRight", "bottomLeft"),
+		delay(0.5, all(
+			UpdateCode(ImageProcessorRect, PaperCode().edit(1, false)`${insert("text = ")}response${remove(" = requests")}.${edit("post", "get")}(\n  \"${edit("\"","choices")}\"${insert(", [{}]")}\n${edit("    https://", ")[0].get(")}\n  ${edit("  api.openai.com/", "\"message\", {}")}\n${edit("    v1/chat/completions", ").get(")}\n  "${insert("content\", ")}""${remove(",")}\n${edit("  headers=headers,", ")")}\n${remove("  json=payload")}\n${edit(")", "description = [\n  line.strip() for line in\n  text.split('\\n')\n  if line.startswith('-')\n]")}`),
+			UpdateLabel(ImageProcessorRect, "Image Processed"),
 		)),
 	);
-	
-	// Our code [explain code]
-	yield* beginSlide("code2")
+
+	// Now, let's generate a message of what to say
+	yield* beginSlide("Img2Code.3")
 	yield* all(
-		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("[Put code 2 here]")}`),
-		UpdateLabel(OurCodeRect, "Something"),
+		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${remove("text = response.get(\n  \"choices\", [{}]\n)[0].get(\n  \"message\", {}\n).get(\n  \"content\", \"\"\n)\n\n")}description = ${edit("[\n  line.strip() for line in\n  text.split('\\n')\n  if line.startswith('-')\n]", "\n  getDescription(imagePath)\n\nmessage = \n  askLLM(description)\n\naudioPath = \n  testToAudio(message)")}`),
 	);
 
-	// Which sends it to the llm processor
+	// We prep the prompt
+	yield* beginSlide("code2.1")
+	yield* all(
+		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${edit("description =\n  getDescription(imagePath)\n\nmessage = \n  askLLM(", "prompt = f\"\"\"\n  Here is a person with the\n  following attributes:\n  {', '.join(")}description${edit(")\n\naudioPath = \n  testToAudio(message)", ")}.\n  Please confront them as\n  they are entering your\n  property, mentioning\n  some of their attributes\n  so they know you are\n  talking to them\n  but do not ask questions.\n\"\"\"")}`),
+		UpdateLabel(OurCodeRect, "Compose Prompt"),
+	);
+
+	// Then also ask open ai to do that
 	yield* beginSlide("Code2Gpt")
 	yield* all(
 		ChatGPT().opacity(1, 1),
 		delay(0.5, all(
 			DrawArrow(OurCodeRect, ChatGPTRect, "bottom", "top"),
-			delay(0.5, UpdateLabel(OurCodeRect, "Description sent to LLM")),
+			UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("response =\nopenai.Completion.create(\n  engine=\"text-davinci-003\",\n  prompt=")}prompt${edit(" = f\"\"\"\n  Here is a person with the\n  following attributes:\n  {', '.join(description)}.\n  Please confront them as\n  they are entering your\n  property, mentioning\n  some of their attributes\n  so they know you are\n  talking to them\n  but do not ask questions.\n\"\"\"", ",\n  max_tokens=1024,\n  n=1,\n  stop=None,  \n  temperature=0.5,\n)")}`),
+			delay(0.5, UpdateLabel(OurCodeRect, "Prompt sent to LLM")),
 		)),
 	);
 
-	// Which does stuff
+	// It replies back with what to say
 	yield* beginSlide("Gpt2Code")
 	yield* all(
-		UpdateCode(ImageProcessorRect, PaperCode().edit(1, false)`${insert("[Put prompt here]")}`),
+		DrawArrow(ChatGPTRect, OurCodeRect, "top", "bottom"),
 		delay(1, all(
-			DrawArrow(ImageProcessorRect, OurCodeRect, "top", "bottom"),
-			delay(0.5, Label().text("Text Generated", 1)),
+			UpdateCode(ChatGPTRect, PaperCode().edit(1, false)`${insert("message = \n  ")}response${edit(" =\nopenai.Completion.create(\n  engine=\"text-davinci-003\",\n  prompt=prompt,\n  max_tokens=1024,\n  n=1,\n  stop=None,  \n  temperature=0.5,\n)", ".choices[0].text")}`),
+			delay(0.5, UpdateLabel(ChatGPTRect, "LLM Generates Message")),
 		)),
 	);
 	
-	// Our code [explain code]
+	// So now, let's synthesize some audio
 	yield* beginSlide("code3")
 	yield* all(
-		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("[Put code 3 here]")}`),
-		UpdateLabel(OurCodeRect, "Something"),
+		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("description =\n  getDescription(imagePath)\n\n")}message = \n  ${edit("response.choices[0].text", "askLLM(description)\n\naudioPath = \n  testToAudio(message)")}`),
 	);
 
-	// Which sends it to the audio generator
+	// Same thing; prep the request
+	yield* beginSlide("code3.2")
+	yield* all(
+		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${edit("description =\n  getDescription(imagePath)\n\nmessage = \n  askLLM(description)\n\naudioPath = \n  testToAudio(", "import requests\n\nheaders = {\n  \"Content-Type\":\n    \"application/json\",\n  \"Authorization\":\n    f\"Bearer {api_key}\"\n}\n\npayload = {\n  \"model\": \"tts-1\",\n  \"voice\": \"onyx\",\n  \"input\": ")}message${edit(")", "\n}")}`),
+		UpdateLabel(OurCodeRect, "Prep Request"),
+	);
+
+	// And send it to open ai once more
 	yield* beginSlide("Code2Aud")
 	yield* all(
 		AudioGen().opacity(1, 1),
 		delay(0.5, all(
 			DrawArrow(OurCodeRect, AudioGenRect, "bottomRight", "topLeft"),
+			UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${edit("import", "response =")} requests${edit("\n\n", ".post(\n  \"\"\"\n    https://\n    api.openai.com/\n    v1/audio/speech\n  \"\"\",\n  headers=")}headers${edit(" = {\n  \"Content-Type\":\n    \"application/json\",\n  \"Authorization\":\n    f\"Bearer {api_key}\"\n}\n\n", ",\n  json=")}payload${edit(" = {\n  \"model\": \"tts-1\",\n  \"voice\": \"onyx\",\n  \"input\": message\n}", "\n)")}`),
 			delay(0.5, UpdateLabel(OurCodeRect, "Script sent to\nAudio Generator")),
 		)),
 	);
 
-	// Which does stuff
+	// It returns the audio file to play
 	yield* beginSlide("Aud2Code")
 	yield* all(
-		UpdateCode(AudioGenRect, PaperCode().edit(1, false)`${insert("[Put prompt here]")}`),
+		DrawArrow(AudioGenRect, OurCodeRect, "topLeft", "bottomRight"),
 		delay(1, all(
-			DrawArrow(AudioGenRect, OurCodeRect, "topLeft", "bottomRight"),
+			UpdateCode(AudioGenRect, PaperCode().edit(1, false)`${insert("with open(\n  audioPath, \"wb\"\n) as f:\n  f.write(")}response${edit(" = requests.post(\n  \"\"\"\n    https://\n    api.openai.com/\n    v1/audio/speech\n  \"\"\",\n  headers=headers,\n  json=payload\n)", ".content)")}`),
 			delay(0.5, Label().text("Audio Generated", 1)),
 		)),
 	);
 
-	// Which we send to a speaker
+	// And that is the end of our code
+	yield* beginSlide("ourCode.3");
+	yield* all(
+		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${edit("with open(\n  ", "description =\n  getDescription(imagePath)\n\nmessage = \n  askLLM(description)\n\n")}audioPath${edit(", \"wb\"\n) as f:\n  f.write(response.content)", " = \n  testToAudio(message)")}`),
+	);
+
+	// So we can send that audio to the speaker
 	yield* beginSlide("Code2Out")
 	yield* all(
 		Output().opacity(1, 1),
-		UpdateCode(OurCodeRect, PaperCode().edit(1, false)`${insert("[Put code 4 here]")}`),
 		delay(1, all(
 			DrawArrow(OurCodeRect, OutputRect, "right", "left"),
 			delay(0.5, Label().text("Audio Sent", 1)),

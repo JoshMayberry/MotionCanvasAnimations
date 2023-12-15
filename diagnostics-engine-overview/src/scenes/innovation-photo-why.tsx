@@ -186,7 +186,7 @@ export default makeScene2D(function* (view) {
 		PersonTheif().opacity(1, 1),
 	);
 
-	// We want it to deter people the wrong people
+	// We want it to not deter the wrong people
 	yield* beginSlide("mailApproaches");
 	yield* all(
 		PersonMail().y(-100, 1),

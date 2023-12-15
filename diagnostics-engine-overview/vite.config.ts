@@ -14,6 +14,7 @@ export default defineConfig({
         "./src/how-it-works.ts",
         "./src/natural-language.ts",
         "./src/innovation-photo.ts",
+        "./src/innovation-llm-rfc.ts",
       ]
     }),
     ffmpeg(),

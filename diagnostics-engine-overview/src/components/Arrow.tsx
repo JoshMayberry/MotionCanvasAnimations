@@ -27,6 +27,7 @@ export interface drawArrow_options {
 	bend?: "horizontal" | "vertical" | "none",
 	delta_divisior?: number,
 	signal?: SimpleSignal<number, void>,
+	doEnd?: boolean,
 }
 
 export interface Connection {
@@ -110,6 +111,7 @@ export class Arrow extends Node {
 		direction="end",
 		bend="vertical",
 		delta_divisior=3,
+		doEnd=true,
 	}:drawArrow_options={}): ThreadGenerator {
 		// Determine Path
 		const point_source = this.positionLocalToLocal(connection_source);
@@ -161,16 +163,20 @@ export class Arrow extends Node {
 			yield* all(
 				((this.current_mode == "with_payload") ? this.signal(1, timespan) : null),
 				this.lineRef().end(1, timespan),
-				delay(lag, this.lineRef().start(1, timespan)),
+				(doEnd ? delay(lag, this.lineRef().start(1, timespan)) : null),
 			);
 		}
 		else {
 			yield* all(
 				((this.current_mode == "with_payload") ? this.signal(1, timespan) : null),
 				this.lineRef().start(1, timespan),
-				delay(lag, this.lineRef().end(1, timespan)),
+				(doEnd ? delay(lag, this.lineRef().end(1, timespan)) : null),
 			);
 		}
+	}
+
+	public* resolve(duration:number=0.5) {
+		yield* this.lineRef().end(1, duration);
 	}
 
 	public* sendPayload(connection_source: Connection, connection_destination: Connection) {
