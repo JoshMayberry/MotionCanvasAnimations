@@ -19,8 +19,7 @@ import copilotImg_src from "../media/llmRfc_githubCopilot.png"
 import einsteinImg_src from "../media/llmRfc_einstein.gif"
 import selfHostImg1_src from "../media/llmRfc_redpajama.png"
 import selfHostImg2_src from "../media/llmRfc_server.jpg"
-import openaiImg1_src from "../media/llmRfc_openai_1.png"
-import openaiImg2_src from "../media/llmRfc_openai_2.png"
+import openaiImg_src from "../media/llmRfc_openai_2.png"
 
 import whatIsIt_bookPile_src from "../media/llRfc_whatIsIt_books.png"
 import whatIsIt_bookWorm_src from "../media/llmRfc_whatIsIt_bookWorm.png"
@@ -29,7 +28,6 @@ import whatIsIt_answer_src from "../media/llmRfc_whatIsIt_answer.png"
 
 
 export default makeScene2D(function* (view) {
-
 	const rfc_ref = createRef<Block>();
 	const person_1 = createRef<Person>();
 	const person_2 = createRef<Person>();
@@ -127,7 +125,7 @@ export default makeScene2D(function* (view) {
 			/>
 			<Block ref={openaiImg2_ref}
 				willFadeIn={true}
-				src={openaiImg2_src}
+				src={openaiImg_src}
 				src_scale={0.6}
 			/>
 
@@ -303,8 +301,8 @@ export default makeScene2D(function* (view) {
 			<Block ref={openaiImg1_ref}
 				y={200}
 				willFadeIn={true}
-				src={openaiImg1_src}
-				src_scale={1.5}
+				src={openaiImg_src}
+				src_scale={0.4}
 			/>
 
 			<Arrow ref={arrow1_ref} />
@@ -411,8 +409,9 @@ export default makeScene2D(function* (view) {
 		),
 	);
 
-	// But, they can only stay proofs of concept until our engineers can gain access to a scalable production LLM that will protect customer data.
-	// So, rather than present on an amazing application for an LLM, I want to start the ball that will make using an LLM more than just a proof-of-concept.
+	// But, when it comes to what options are available for scaling these proofs of concept to production- there is a bit of confusion.
+	// So, rather than present on an amazing application for an LLM, I researched every option people would bring up.
+	// My hope is this presentation starts a serious conversation which eventually results in providing more resources for these kinds of projects.
 	yield* beginSlide("only a poc");
 	yield* sequence(0.1,
 		all(
@@ -437,7 +436,7 @@ export default makeScene2D(function* (view) {
 		),
 	);
 
-	// And what better way start the conversation than to create an RFC.
+	// And what better way drive a conversation than to create an RFC.
 	// For the uninitiated, RFC stands for "Request for Comment". It lays out various thoughts on a matter and helps transparently track a discussion as well as the eventual decision that was reached.
 	yield* beginSlide("definitions.1");
 	yield* rfc_ref().opacity(1, 1),
@@ -468,7 +467,7 @@ export default makeScene2D(function* (view) {
 
 	// I will show 5 options that I investigated, the last being the one I think should be used.
 	// To be clear, my goal here is NOT to decide which LLM service to use, or how we should use it. NOR is my goal to say what we can or cannot do.
-	// I just want to start the conversation.
+	// I just want to start the conversation and cleat up any misunderstandings.
 	yield* beginSlide("show empty spots");
 	yield* sequence(0.1,
 		rfc_ref().opacity(0, 1),
@@ -541,7 +540,7 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("self host.2");
 	yield* selfHost_ref().status("unknown", 1);
 
-	// I think easiest forward for innovation would be to use OpenAI's ChatGPT Enterprise.
+	// I think easiest forward for innovation would be to use OpenAI's ChatGPT API.
 	yield* beginSlide("openai");
 	yield* sequence(0.25,
 		selfHostImg1_ref().fadeOut(),
@@ -549,9 +548,12 @@ export default makeScene2D(function* (view) {
 		openai_ref().pathOpacity(1, 1),
 	);
 
-	// The enterprise edition would lift the message rate cap and not train on the data sent to it.
-	// Both of these things allow for us make secure and scalable use of a powerful LLM.
-	yield* beginSlide("openai list.1");
+	// Any data sent to their API will not be used for trraining their model (that only applies to their chat bot interface online).
+	// There are different price options that tackle how often keys would be used that are detailed in the RFC.
+
+	// My suggestion would be to purchase a handfull of the cheapest API tokens for developers to use for proof of concept work.
+	// Then, when a project is ready to move forward, for specific keys of the appropriate tier to be purchased specifically for that project.
+	yield* beginSlide("openai.2");
 	yield* openaiImg1_ref().fadeIn();
 
 	// I like this option, but I am not the decision maker here though. Perhaps there is another option that was not listed here- or perhaps you have something to say about one of the options covered.
