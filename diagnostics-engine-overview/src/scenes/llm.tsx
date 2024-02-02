@@ -157,8 +157,8 @@ export default makeScene2D(function* (view) {
 		</>
 	);
 
-	engine_ref().eyeBodyRef().opacity(0);
-	engine_ref().eyePupilRef().opacity(0);
+	// engine_ref().eyeBodyRef().opacity(0);
+	// engine_ref().eyePupilRef().opacity(0);
 
 	//#region Why
 	yield* beginSlide("start");
@@ -356,7 +356,7 @@ export default makeScene2D(function* (view) {
 		)),
 	);
 	yield* all(
-		llmEngine_ref().width(270, 1),
+		// llmEngine_ref().width(270, 1),
 		llmEngineCode_ref().width(160, 1),
 		llmEngineCode_ref().x(-48, 1),
 		llmEngineReply_ref().x(83, 1),
@@ -402,7 +402,7 @@ export default makeScene2D(function* (view) {
 		llmEngine_ref().pathRef().opacity(1, 1),
 		llmEngineCode_ref().opacity(0, 1),
 		llmEngineReply_ref().opacity(0, 1),
-		llmEngine_ref().width(150, 1),
+		// llmEngine_ref().width(150, 1),
 		camera().reset(),
 	);
 	//#endregion

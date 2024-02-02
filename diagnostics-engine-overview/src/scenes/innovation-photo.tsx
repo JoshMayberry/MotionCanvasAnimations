@@ -261,7 +261,7 @@ export default makeScene2D(function* (view) {
 
 	yield* beginSlide("playAudio");
 	DemoAudio().play();
-	yield* waitFor(10);
+	yield* waitFor(7.2);
 
 	// Here's how this process works
 	yield* beginSlide("demoFadeOut");
