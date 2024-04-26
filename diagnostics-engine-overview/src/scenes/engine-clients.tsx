@@ -496,20 +496,18 @@ export default makeScene2D(function* (view) {
 	)
 
 	yield* beginSlide("grayAllOut");
-	// The key here is the little box- the diagnostic engine. We are working on building this.
+	// The key here is the little box- the diagnostic engine. This produces the same message for all clients, but they apply it in different ways.
 	yield* all(
 		wifiError(false),
 		phoneBlock_layout_ref().opacity(0.25, 1),
 		wifi_ref().opacity(0.25, 1),
 		history_ref().opacity(0.25, 1),
 		salesforce_ref().opacity(0.25, 1),
-		// instructions_ref().opacity(0.25, 1),
+		instructions_ref().opacity(0.25, 1),
 		scenario_phone_ref().opacity(0.25, 1),
 		operator_layout_ref().blockRef().opacity(0.25, 1),
+		operator_diagnostics_ref().opacity(0.25, 1),
 	);
-
-	// We will start our implementation here- but it will end up helping up here.
-
 
 	yield* beginSlide("end");
  });
