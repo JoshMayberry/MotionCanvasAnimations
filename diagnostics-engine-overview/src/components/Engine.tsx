@@ -135,10 +135,17 @@ export class Engine extends Node {
 		yield* this.gearRef().rotation(easeInOutCubic(1) * 360, duration);
 	}
 
-	public* showLabel(duration:number = 1) {
+	public* showLabel(duration:number = 1, textTop:string = "Diagnostics", textBottom:string = "Engine") {
 		yield* all(
-			this.label1Ref().text("Diagnostics", duration),
-			delay(duration/2, this.label2Ref().text("Engine", duration)),
+			this.label1Ref().text(textTop, duration),
+			delay(duration/2, this.label2Ref().text(textBottom, duration)),
+		);
+	}
+
+	public* hideLabel(duration:number = 1) {
+		yield* all(
+			this.label1Ref().text("", duration),
+			delay(duration/2, this.label2Ref().text("", duration)),
 		);
 	}
 }

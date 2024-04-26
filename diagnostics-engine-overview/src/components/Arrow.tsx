@@ -1,4 +1,4 @@
-import {Layout, Line, Node, NodeProps, Path} from '@motion-canvas/2d/lib/components';
+import {Layout, Line, Node, NodeProps, Path, Txt} from '@motion-canvas/2d/lib/components';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createSignal, SimpleSignal} from '@motion-canvas/core/lib/signals';
 import {Reference, createRef} from '@motion-canvas/core/lib/utils';
@@ -11,13 +11,16 @@ type ArrowMode = "no_payload" | "with_payload"
 export interface ArrowProps extends NodeProps {
 	color_line?: string,
 	color_payload?: string,
+	color_payloadText?: string,
 	payload?: string,
+	payloadText?: string,
 	mode?: ArrowMode,
 	line_offset?: number,
 	line_radius?: number,
 	line_width?: number,
 	payload_offset?: number,
 	payload_scale?: number,
+	payloadText_fontSize?: number,
 }
 
 export interface drawArrow_options {
@@ -39,11 +42,13 @@ export interface Connection {
 export class Arrow extends Node {
 	private color_line;
 	private color_payload;
+	private color_payloadText;
 
 	public readonly mainRef = createRef<Layout>();
 	public readonly lineRef = createRef<Line>();
 	public readonly payloadRef = createRef<Layout>();
 	public readonly payloadBodyRef = createRef<Path>();
+	public readonly payloadTextRef = createRef<Txt>();
 
 	public readonly signal = createSignal(0);
 
@@ -54,8 +59,9 @@ export class Arrow extends Node {
 
 		this.color_line = new Color(props?.color_line || "#6D6C70");
 		this.color_payload = new Color(props?.color_payload || "#F67E20");
+		this.color_payloadText = new Color(props?.color_payloadText || "#A2A1A6");
 
-		this.current_mode = props?.mode || (props?.payload ? "with_payload" : "no_payload");
+		this.current_mode = props?.mode || ((props?.payload || props?.payloadText) ? "with_payload" : "no_payload");
 
 		this.add(
 			<Layout ref={this.mainRef}
@@ -67,12 +73,19 @@ export class Arrow extends Node {
 					position={() => this.lineRef().getPointAtPercentage(this.signal()).position}
 					// rotation={() => this.lineRef().getPointAtPercentage(this.signal()).tangent.degrees}
 				>
-					<Path ref={this.payloadRef}
+					<Path ref={this.payloadBodyRef}
 						fill={this.color_payload}
-						data={props?.payload}
+						data={props?.payload || "M7.8 0z"}
 						scale={props?.payload_scale || 3}
 						x={props?.payload_offset || -40}
 						y={props?.payload_offset || -40}
+					/>
+					<Txt ref={this.payloadTextRef}
+						size={12}
+						fontSize={props?.payloadText_fontSize || 24}
+						text={props?.payloadText || ""}
+						textAlign="center"
+						fill={this.color_payloadText}
 					/>
 				</Layout>
 				
@@ -179,11 +192,11 @@ export class Arrow extends Node {
 		yield* this.lineRef().end(1, duration);
 	}
 
-	public* sendPayload(connection_source: Connection, connection_destination: Connection) {
+	public* sendPayload(connection_source: Connection, connection_destination: Connection, duration:number=1) {
 		yield* all(
 			this.mainRef().opacity(1, 0.2),
-			this.drawArrow(connection_source, connection_destination, {timespan: 1, lag: 0, direction: "end", bend: "none"}),
-			delay(0.8, all(
+			this.drawArrow(connection_source, connection_destination, {timespan: duration, lag: 0, direction: "end", bend: "none"}),
+			delay(duration - 0.2, all(
 				this.mainRef().opacity(0, 0.2),
 			)),
 		);

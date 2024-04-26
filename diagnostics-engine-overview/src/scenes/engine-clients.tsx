@@ -9,6 +9,7 @@ import { Panel } from "../components/Panel"
 import { Clock } from "../components/Clock"
 import { Hand } from "../components/Hand"
 import { Arrow, Connection } from "../components/Arrow"
+import { DataStream } from "../components/DataStream";
 
 export default makeScene2D(function* (view) {
 	const logger = useLogger();
@@ -22,20 +23,15 @@ export default makeScene2D(function* (view) {
 
 	const engine_ref = createRef<Engine>();
 	const phone_ref = createRef<Phone>();
-
 	const wifi_ref = createRef<Block>();
-
 	const clock_ref = createRef<Clock>();
-
 	const history_ref = createRef<Block>();
-
 	const salesforce_ref = createRef<Block>();
-
 	const instructions_ref = createRef<Layout>();
-
 	const phoneBlock_layout_ref = createRef<Block>();
-
 	const hand_ref = createRef<Hand>();
+	const platform_ref = createRef<Block>();
+	const infoStream_ref = createRef<DataStream>();
 
 	const operator_layout_ref = createRef<Block>();
 	const operator_diagnostics_ref = createRef<Layout>();
@@ -64,7 +60,13 @@ export default makeScene2D(function* (view) {
 
 					<Panel ref={panel_ref}
 						x={20 + 120}
-					/>
+					>
+						<DataStream ref={infoStream_ref}
+							mask_width={300}
+							mask_height={600}
+							show_mask={false}
+						/>
+					</Panel>
 
 					<Block ref={wifi_ref}
 						x={-75 - 120}
@@ -98,7 +100,7 @@ export default makeScene2D(function* (view) {
 						opacity={0}
 						path="M9.01 20.5a4.642 4.642 0 0 1-4.191-2.632 5.136 5.136 0 0 1-.48.019C1.946 17.887 0 15.932 0 13.529c0-1.4.685-2.721 1.812-3.538a4.861 4.861 0 0 1-.259-1.563c0-2.717 2.224-4.928 4.956-4.928 1.374 0 2.665.547 3.613 1.516a4.555 4.555 0 0 1 2.886-1.031c1.48 0 2.875.748 3.733 1.978a5.41 5.41 0 0 1 1.815-.306c3.002 0 5.443 2.455 5.443 5.472 0 3.018-2.449 5.472-5.46 5.472a5.33 5.33 0 0 1-.727-.053 4.132 4.132 0 0 1-4.749 1.587A4.634 4.634 0 0 1 9.01 20.5zm-3.881-3.685c.206 0 .396.128.47.328.514 1.41 1.885 2.357 3.411 2.357a3.636 3.636 0 0 0 3.35-2.196.504.504 0 0 1 .666-.259c1.613.729 3.335.094 4.1-1.286a.505.505 0 0 1 .525-.25c.348.062.63.091.89.091 2.459 0 4.46-2.006 4.46-4.472s-1.993-4.472-4.443-4.472c-.652 0-1.274.132-1.8.381a.503.503 0 0 1-.649-.206c-.645-1.139-1.833-1.847-3.1-1.847-.969 0-1.9.396-2.557 1.088a.5.5 0 0 1-.692.032.622.622 0 0 1-.077-.077A4.045 4.045 0 0 0 6.509 4.5c-2.182 0-3.956 1.762-3.956 3.928 0 .538.114 1.075.329 1.554a.501.501 0 0 1-.204.637A3.384 3.384 0 0 0 1 13.529c0 1.852 1.497 3.357 3.338 3.357.291 0 .495-.018.683-.06a.565.565 0 0 1 .108-.011z"
 						label="Salesforce"
-						/>
+					/>
 
 					<Block ref={history_ref}
 						x={500}
@@ -236,6 +238,15 @@ export default makeScene2D(function* (view) {
 					text="IVR"
 					text_fontSize={100}
 					text_offset={10}
+				/>
+
+				<Block ref={platform_ref}
+					x={-660}
+					y={300}
+					width={200}
+					opacity={0}
+					path="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"
+					label="Platform"
 				/>
 
 				<Arrow ref={connect_1_ref} />
@@ -505,8 +516,58 @@ export default makeScene2D(function* (view) {
 		salesforce_ref().opacity(0.25, 1),
 		instructions_ref().opacity(0.25, 1),
 		scenario_phone_ref().opacity(0.25, 1),
-		operator_layout_ref().blockRef().opacity(0.25, 1),
+		operator_layout_ref().opacity(0.25, 1),
 		operator_diagnostics_ref().opacity(0.25, 1),
+	);
+
+	// So, how does this actually work?
+	yield* beginSlide("howItWorks");
+	yield* all(
+		engine_ref().x(0, 1),
+		phoneBlock_layout_ref().opacity(0, 1),
+		wifi_ref().opacity(0, 1),
+		history_ref().opacity(0, 1),
+		salesforce_ref().opacity(0, 1),
+		instructions_ref().opacity(0, 1),
+		scenario_phone_ref().opacity(0, 1),
+		operator_layout_ref().opacity(0, 1),
+		operator_diagnostics_ref().opacity(0, 1),
+		panel_ref().opacity(0, 1),
+		clock_ref().opacity(0, 1),
+		engine_ref().hideLabel(0.5),
+	);
+
+	// The engine is actually made up of multiple parts. There are 2 main ones. One that watches the panel and one that thinks about things.
+	yield* beginSlide("engineSplit");
+	yield* all(
+		engine_ref().eyeRef().standalone(true, 1),
+		engine_ref().eyeRef().x(-600, 1),
+		engine_ref().x(300, 1),
+		engine_ref().showLabel(1, "Thinker", ""),
+		engine_ref().eyeRef().showLabel(1, "Listener", ""),
+	);
+	
+	// The panel is constantly sending data to our Platform.
+	panel_ref().x(-400)
+	yield* beginSlide("engineSplit2");
+	yield* all(
+		panel_ref().opacity(1, 1),
+		platform_ref().opacity(1, 1),
+		infoStream_ref().opacity(1, 1),
+	);
+
+	// The listener can watch this data stream and copy pieces of the data that it cares about.
+	yield* beginSlide("engineSplit3");
+	yield* all(
+		delay(1, engine_ref().eyeLook("left")),
+		infoStream_ref().sendStream({columns:3, rows:50, linesPerSecond:8, periodicSyphon_ref: engine_ref().eyeRef().blockRef().mainRef}),
+	);
+	yield* engine_ref().eyeLook(),
+
+	// These values get stored in our database so the thinker can reference them later
+	yield* beginSlide("end");
+	yield* all(
+		history_ref().opacity(1, 1),
 	);
 
 	yield* beginSlide("end");

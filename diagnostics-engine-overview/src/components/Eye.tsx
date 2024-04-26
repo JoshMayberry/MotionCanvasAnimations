@@ -3,9 +3,13 @@ import {easeInOutCubic,} from '@motion-canvas/core/lib/tweening';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createRef} from '@motion-canvas/core/lib/utils';
 import {all, delay} from '@motion-canvas/core/lib/flow';
+import { Block } from './Block';
+import {useLogger} from '@motion-canvas/core';
 
 export interface EyeProps extends NodeProps {
 	color_eye?: string,
+	color_block?: string,
+	is_standalone?: boolean,
 }
 
 type EyePosition = "center" | "left" | "topLeft" | "top" | "topRight" | "right" | "bottomRight" | "bottom" | "bottomLeft";
@@ -14,6 +18,7 @@ export class Eye extends Node {
 	private color_eye;
 
 	public readonly mainRef = createRef<Layout>();
+	public readonly blockRef = createRef<Block>();
 	public readonly eyeBodyRef = createRef<Path>();
 	public readonly eyePupilRef = createRef<Path>();
 
@@ -28,6 +33,15 @@ export class Eye extends Node {
 
 		this.add(
 			<Layout ref={this.mainRef}>
+				<Block ref={this.blockRef}
+					width={150}
+					height={150}
+					x={60}
+					y={60}
+					color_blockFill={props?.color_block}
+					radius={10}
+					willFadeIn={!props?.is_standalone}
+				/>
 				<Path ref={this.eyeBodyRef}
 					scale={5}
 					fill={this.color_eye}
@@ -43,7 +57,7 @@ export class Eye extends Node {
 
 	}
 
-	public* eyeLook(position:EyePosition = "center", duration: number = 0.2) {
+	public* eyeLook(position:EyePosition = "center", duration:number = 0.2) {
 		if (position == this.current_eyePosition) {
 			return;
 		}
@@ -113,5 +127,22 @@ export class Eye extends Node {
 			default:
 				throw `Unknown eye position '${position}'`;
 		}
+	}
+
+	public* standalone(state:boolean = true, duration:number = 0.5) {
+		if (state) {
+			yield* this.blockRef().fadeIn("none", 0, duration)
+		}
+		else {
+			yield* this.blockRef().fadeOut("none", 0, duration)
+		}
+	}
+
+	public* showLabel(duration:number = 1, textTop:string = "Watcher", textBottom:string = "") {
+		yield* this.blockRef().setLabel(textTop, textBottom, duration)
+	}
+
+	public* hideLabel(duration:number = 1) {
+		yield* this.blockRef().setLabel("", "", duration)
 	}
 }

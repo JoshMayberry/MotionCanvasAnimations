@@ -1,5 +1,5 @@
 import {Img, Layout, Node, NodeProps, Path, Rect, Txt} from '@motion-canvas/2d/lib/components';
-import { ReferenceReceiver, SignalValue, Vector2, all, sequence } from '@motion-canvas/core';
+import { ReferenceReceiver, SignalValue, Vector2, all, sequence, delay } from '@motion-canvas/core';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createRef} from '@motion-canvas/core/lib/utils';
 
@@ -18,6 +18,8 @@ export interface BlockProps extends NodeProps {
 	src_scale?: number,
 	text?: string,
 	label?: string,
+	labelTop?: string, // Alias for label
+	labelBottom?: string,
 	path?: string,
 	pathAnimate?: string,
 	mode?: BlockMode
@@ -51,6 +53,8 @@ export class Block extends Node {
 	public readonly blockFillRef = createRef<Img>();
 	public readonly textRef = createRef<Txt>();
 	public readonly labelRef = createRef<Txt>();
+	public readonly labelTopRef = this.labelRef; // Alias for labelRef
+	public readonly labelBottomRef = createRef<Txt>();
 	public readonly pathRef = createRef<Path>();
 	public readonly pathAnimateRef = createRef<Path>();
 	public readonly pathStatusRef = createRef<Path>();
@@ -110,11 +114,17 @@ export class Block extends Node {
 				<Layout
 					top={this.blockRef().bottom}
 				>
-					<Txt  ref={this.labelRef}
+					<Txt  ref={this.labelTopRef}
 						fill={this.color_label}
-						text={props?.label || ""}
+						text={props?.label || props?.labelBottom || ""}
 						fontSize={label_fontSize}
 						y={label_fontSize + (props?.label_offset || 0)}
+					/>
+					<Txt  ref={this.labelBottomRef}
+						fill={this.color_label}
+						text={props?.labelTop || ""}
+						fontSize={label_fontSize}
+						top={this.labelTopRef().bottom}
 					/>
 				</Layout>
 				<Path ref={this.pathRef}
@@ -151,6 +161,7 @@ export class Block extends Node {
 		);
 	}
 
+	// status draws a check mark, x, or question mark in the top right corner
 	public* status(status:BlockStatus, duration:number=0.5) {
 		var path:string;
 		switch (status) {
@@ -247,6 +258,13 @@ export class Block extends Node {
 		yield* all(
 			...threadList,
 			this.mainRef().opacity(0, duration),
+		);
+	}
+
+	public* setLabel(labelTop:string="", labelBottom:string="", duration:number=1) {
+		yield* all(
+			this.labelTopRef().text(labelTop, duration),
+			delay(duration/2, this.labelBottomRef().text(labelBottom, duration)),
 		);
 	}
 }
