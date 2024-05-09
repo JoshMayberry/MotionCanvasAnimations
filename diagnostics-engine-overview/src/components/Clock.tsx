@@ -1,6 +1,7 @@
 import {Circle, Layout, Line, Node, NodeProps, Path, Rect} from '@motion-canvas/2d/lib/components';
 import {map, tween} from '@motion-canvas/core/lib/tweening';
 import {Color} from '@motion-canvas/core/lib/types/Color';
+import { Block } from './Block';
 import {createRef} from '@motion-canvas/core/lib/utils';
 
 export interface ClockProps extends NodeProps {
@@ -13,21 +14,21 @@ export class Clock extends Node {
 	public color_path;
 
 	public readonly mainRef = createRef<Layout>();
-	public readonly blockRef = createRef<Rect>();
+	public readonly blockRef = createRef<Block>();
 	public readonly pathRef = createRef<Path>();
 
 	public constructor(props?: ClockProps) {
 		super({ ...props });
 
-		this.color_block = new Color(props?.color_block || "#6D6C70");
 		this.color_path = new Color(props?.color_path || "#1E1E1F");
+		this.color_block = new Color(props?.color_block || "#6D6C70");
 
 		this.add(
 			<Layout ref={this.mainRef}>
-                <Rect ref={this.blockRef}
+                <Block ref={this.blockRef}
                     width={150}
                     height={150}
-                    fill={this.color_block}
+                    color_blockFill={props?.color_block}
                     radius={10}
                 />
                 <Circle

@@ -27,11 +27,15 @@ export default makeScene2D(function* (view) {
 	const clock_ref = createRef<Clock>();
 	const history_ref = createRef<Block>();
 	const salesforce_ref = createRef<Block>();
-	const instructions_ref = createRef<Layout>();
-	const phoneBlock_layout_ref = createRef<Block>();
+	const instructions_1_ref = createRef<Block>();
+	const instructions_2_ref = createRef<Block>();
+	const instructions_3_ref = createRef<Block>();
 	const hand_ref = createRef<Hand>();
 	const platform_ref = createRef<Block>();
 	const infoStream_ref = createRef<DataStream>();
+	const apiForApp_ref = createRef<Block>();
+	const apiForPlatinumPro_ref = createRef<Block>();
+	const apiForSelfHeal_ref = createRef<Block>();
 
 	const operator_layout_ref = createRef<Block>();
 	const operator_diagnostics_ref = createRef<Layout>();
@@ -110,13 +114,33 @@ export default makeScene2D(function* (view) {
 						label="Historical"
 					/>
 
-					<Block ref={instructions_ref}
+					<Block ref={instructions_1_ref}
 						x={700}
 						y={-400 - 10}
 						opacity={0}
 						path="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
 						label="Failures"
 					/>
+
+					<Block ref={instructions_2_ref}
+						x={200}
+						y={100}
+						scale={0.7}
+						opacity={0}
+						path="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
+						labelTop="How to Fix"
+						labelBottom="And Wording"
+					/>
+
+					<Block ref={instructions_3_ref}
+						x={200}
+						y={400}
+						scale={0.7}
+						opacity={0}
+						path="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
+						labelTop="How to Fix"
+						labelBottom="And Wording"
+						/>
 				</Layout>
 
 				<Layout ref={scenario_phone_ref}
@@ -136,16 +160,16 @@ export default makeScene2D(function* (view) {
 				</Layout>
 				
 				<Block ref={operator_layout_ref}
-					y={0}
-					x={650}
-					width={200}
-					height={200}
-					scale={0.8}
+					y={350}
+					x={500}
+					// width={200}
+					// height={200}
+					// scale={0.8}
 					opacity={0}
 					path="M 18,11.03 C 17.52,8.18 15.04,6 12.05,6 9.02,6 5.76,8.51 6.02,12.45 c 2.47,-1.01 4.33,-3.21 4.86,-5.89 1.31,2.63 4,4.44 7.12,4.47 z m 3,1.19 C 21,6.73 16.74,3 12,3 7.31,3 3,6.65 3,12.28 2.4,12.62 2,13.26 2,14 v 2 c 0,1.1 0.9,2 2,2 h 1 v -6.1 c 0,-3.87 3.13,-7 7,-7 3.87,0 7,3.13 7,7 V 19 h -8 v 2 h 8 c 1.1,0 2,-0.9 2,-2 v -1.22 c 0.59,-0.31 1,-0.92 1,-1.64 v -2.3 c 0,-0.7 -0.41,-1.31 -1,-1.62 z"
 					pathAnimate="m 16,13 a 1,1 0 0 1 -1,1 1,1 0 0 1 -1,-1 1,1 0 0 1 1,-1 1,1 0 0 1 1,1 z m -6,0 a 1,1 0 0 1 -1,1 1,1 0 0 1 -1,-1 1,1 0 0 1 1,-1 1,1 0 0 1 1,1 z"
-					path_scale={8}
-					path_offset={-95}
+					path_scale={6}
+					path_offset={-75}
 				>
 					<Layout ref={operator_diagnostics_ref}
 						opacity={0}
@@ -227,17 +251,32 @@ export default makeScene2D(function* (view) {
 						</Layout>
 					</Layout>
 				</Block>
-				
-				<Block ref={phoneBlock_layout_ref}
-					y={300}
+
+				<Block ref={apiForApp_ref}
 					x={0}
-					scale={0.8}
+					y={-300}
 					opacity={0}
-					width={200}
-					height={200}
-					text="IVR"
-					text_fontSize={100}
-					text_offset={10}
+					path="M18,2H6C4.9,2,4,2.9,4,4v18h16V4C20,2.9,19.1,2,18,2z M15.5,13.5c-0.83,0-1.5-0.67-1.5-1.5s0.67-1.5,1.5-1.5 S17,11.17,17,12S16.33,13.5,15.5,13.5z"
+					labelTop="Vivint App"
+					labelBottom="API Endpoint"
+				/>
+
+				<Block ref={apiForPlatinumPro_ref}
+					x={0}
+					y={0}
+					opacity={0}
+					path="M18,2H6C4.9,2,4,2.9,4,4v18h16V4C20,2.9,19.1,2,18,2z M15.5,13.5c-0.83,0-1.5-0.67-1.5-1.5s0.67-1.5,1.5-1.5 S17,11.17,17,12S16.33,13.5,15.5,13.5z"
+					labelTop="Platinum Pro"
+					labelBottom="API Endpoint"
+				/>
+
+				<Block ref={apiForSelfHeal_ref}
+					x={0}
+					y={300}
+					opacity={0}
+					path="M18,2H6C4.9,2,4,2.9,4,4v18h16V4C20,2.9,19.1,2,18,2z M15.5,13.5c-0.83,0-1.5-0.67-1.5-1.5s0.67-1.5,1.5-1.5 S17,11.17,17,12S16.33,13.5,15.5,13.5z"
+					labelTop="Panel Self Heal"
+					labelBottom="API Endpoint"
 				/>
 
 				<Block ref={platform_ref}
@@ -263,14 +302,23 @@ export default makeScene2D(function* (view) {
 		);
 	}
 
-	function* sendWrench() {
-		yield* all( connect_wrench_ref().sendPayload({ref: panel_ref().blockRef, position: "left"}, {ref: wifi_ref().blockRef, position: "right"}),
+	function* sendWrench(pauseLabel="", pauseTimespan:number=null) {
+		yield* all( connect_wrench_ref().sendPayload({ref: panel_ref().blockRef, position: "left"}, {ref: wifi_ref().blockRef, position: "right"}, {pauseLabel, pauseTimespan}),
 			delay(0.7, wifiError(false)),
 		);
 	}
 
-	function* sendDocument(connection_source: Connection, connection_destination: Connection) {
-		yield* connect_document_ref().sendPayload(connection_source, connection_destination)
+	
+	interface sendDocument_options {
+		pauseLabel?: string
+		pauseTimespan?: number,
+		color?: string,
+	}
+
+	function* sendDocument(connection_source: Connection, connection_destination: Connection, {
+		pauseLabel="", pauseTimespan=null, color=""
+	}:sendDocument_options = {}) {
+		yield* connect_document_ref().sendPayload(connection_source, connection_destination, {pauseLabel, pauseTimespan, color})
 	}
 
 	// We have here a panel and a component, in this case the wifi router
@@ -290,7 +338,7 @@ export default makeScene2D(function* (view) {
 	// and "self heal" the problem
 	yield* chain(
 		engine_ref().gearSpin(),
-		sendWrench(),
+		sendWrench("panelFixesError.2"),
 		engine_ref().eyeLook(),
 	);
 
@@ -345,8 +393,8 @@ export default makeScene2D(function* (view) {
 			delay(0.4, engine_ref().eyeLook()),
 			engine_ref().gearSpin(),
 
-			sendDocument({ref: engine_ref().blockRef, position: "left"}, {ref: panel_ref().blockRef, position: "right"}),
-			sendWrench(),
+			sendDocument({ref: engine_ref().blockRef, position: "left"}, {ref: panel_ref().blockRef, position: "right"}, {pauseLabel: "wifiError3"}),
+			sendWrench("wifiError4"),
 		)),
 	);
 
@@ -362,8 +410,8 @@ export default makeScene2D(function* (view) {
 			history_ref().y(history_ref().y() + 10, 1),
 		),
 		all(
-			instructions_ref().opacity(1, 1),
-			instructions_ref().y(instructions_ref().y() + 10, 1),
+			instructions_1_ref().opacity(1, 1),
+			instructions_1_ref().y(instructions_1_ref().y() + 10, 1),
 		),
 	);
 
@@ -375,7 +423,7 @@ export default makeScene2D(function* (view) {
 		clock_ref().opacity(0.25, 1),
 	)
 
-	yield* beginSlide("wifiError4");
+	yield* beginSlide("wifiError6");
 	// A customer notices something is wrong with their system- but they don't know what
 	yield* wifiError(true),
 
@@ -401,13 +449,13 @@ export default makeScene2D(function* (view) {
 				hand_ref().fingerRef().y(hand_ref().fingerRef().y() + 80, 1),
 				delay(0.5, all(
 					hand_ref().fingerRef().opacity(0, 0.5),
-					connect_1_ref().drawArrow({ref: phone_ref().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),
+					connect_1_ref().drawArrow({ref: phone_ref().blockRef().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal", pauseLabel: "customerFixesIt_lookAtPanel"}),
 				)),
 			),
 		)),
 	);
 		
-	yield* beginSlide("customerFixesIt_lookAtPanel");
+	// yield* beginSlide("customerFixesIt_lookAtPanel");
 	// This box looks at the panel
 	yield* engine_ref().eyeLook("topLeft");
 	yield* waitFor(0.8);
@@ -423,7 +471,7 @@ export default makeScene2D(function* (view) {
 		engine_ref().eyeLook(),
 		engine_ref().gearSpin(),
 		all(
-			sendDocument({ref: engine_ref().blockRef, position: "left"}, {ref: phone_ref().blockRef, position: "right"}),
+			sendDocument({ref: engine_ref().blockRef, position: "left"}, {ref: phone_ref().blockRef().blockRef, position: "right"}, {pauseLabel: "customerFixesIt_sendReply.2"}),
 			delay(0.8, phone_ref().showApp("diagnostics", 0.5)),
 		),
 	);
@@ -453,7 +501,6 @@ export default makeScene2D(function* (view) {
 	// Another customers choose to contact us is by calling directly- how can we improve that experience?
 	yield* all(
 		operator_layout_ref().opacity(1, 1),
-		operator_layout_ref().y(300, 1),
 	);
 
 	yield* beginSlide("wifiError5");
@@ -466,55 +513,41 @@ export default makeScene2D(function* (view) {
 
 
 	yield* beginSlide("customerCalls_intercept");
-	// before the call gets to the agent, a robot asks them what their service number is
+	// before the call gets to the agent, a robot asks them what their service number is, which could ask the engine about the system
 	yield* all(
-		phoneBlock_layout_ref().opacity(1, 0.5),
-		connect_1_ref().drawArrow({ref: phone_ref().blockRef, position: "right"}, {ref: phoneBlock_layout_ref().blockRef, position: "left"}, {timespan: 0.5, lag: 0.3, direction: "end", bend: "horizontal"}),
-		delay(0.5, all(
-			beginSlide("customerCalls_split"),
-			waitFor(0.5),
+		connect_1_ref().drawArrow({ref: phone_ref().blockRef().blockRef, position: "right"}, {ref: operator_layout_ref().blockRef, position: "left"}, {timespan: 0.5, lag: 0.3, direction: "end", bend: "horizontal", pauseLabel: "careAgentTurn.1", pauseTimespan: 0.4}),
+	);
+
+	// The engine looks at it's sources and thinks about it
+	// yield* beginSlide("careAgentTurn")
+	yield* all(
+		connect_2_ref().drawArrow({ref: operator_layout_ref().blockRef, position: "top"}, {ref: engine_ref().blockRef, position: "bottom"}, {timespan: 1, lag: 1, direction: "end", bend: "horizontal", pauseLabel: "careAgentTurn.2", pauseTimespan: 1}),
+		delay(1, engine_ref().eyeLook("topLeft")),
+		delay(1.8, engine_ref().eyeLook("top")),
+		delay(2.6, all(
+			engine_ref().eyeLook(),
+			engine_ref().gearSpin(),
 		)),
 	);
 
-	// Now, we can get a list of issues for the agent before the call even begins
-	yield* all(
-		connect_2_ref().drawArrow({ref: phoneBlock_layout_ref().blockRef, position: "top"}, {ref: engine_ref().blockRef, position: "bottom"}, {timespan: 1, lag: 1, direction: "end", bend: "vertical"}),
-		delay(0.8,
-			chain(
-				engine_ref().eyeLook("topLeft"),
-				all(
-					beginSlide("customerCalls_thinking"),
-					waitFor(0.5),
-				),
-				engine_ref().eyeLook("top"),
-				waitFor(0.5),
-			)
-		)
-	);
-
+	// The care agent can then have a conversation armed with knowledge of what is wrong before the call even begins
+	yield* beginSlide("customerCalls_reply")
 	yield* all(
 		chain(
-			all(
-				engine_ref().eyeLook(),
-				engine_ref().gearSpin(),
-			),
-			all(
-				sendDocument({ref: engine_ref().blockRef, position: "bottom"}, {ref: operator_layout_ref().blockRef, position: "top"}),
-				delay(0.8, operator_diagnostics_ref().opacity(1, 0.5)),
-			),
+			sendDocument({ref: engine_ref().blockRef, position: "bottom"}, {ref: operator_layout_ref().blockRef, position: "top"}, {pauseLabel: "customerCalls_reply.2"}),
+			operator_diagnostics_ref().opacity(1, 0.5),
 		),
-		connect_3_ref().drawArrow({ref: phoneBlock_layout_ref().blockRef, position: "right"}, {ref: operator_layout_ref().blockRef, position: "left"}, {timespan: 4, lag: 0.3, direction: "end", bend: "horizontal"}),
-	)
+	);
+
 
 	yield* beginSlide("grayAllOut");
 	// The key here is the little box- the diagnostic engine. This produces the same message for all clients, but they apply it in different ways.
 	yield* all(
 		wifiError(false),
-		phoneBlock_layout_ref().opacity(0.25, 1),
 		wifi_ref().opacity(0.25, 1),
 		history_ref().opacity(0.25, 1),
 		salesforce_ref().opacity(0.25, 1),
-		instructions_ref().opacity(0.25, 1),
+		instructions_1_ref().opacity(0.25, 1),
 		scenario_phone_ref().opacity(0.25, 1),
 		operator_layout_ref().opacity(0.25, 1),
 		operator_diagnostics_ref().opacity(0.25, 1),
@@ -524,11 +557,10 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("howItWorks");
 	yield* all(
 		engine_ref().x(0, 1),
-		phoneBlock_layout_ref().opacity(0, 1),
 		wifi_ref().opacity(0, 1),
 		history_ref().opacity(0, 1),
 		salesforce_ref().opacity(0, 1),
-		instructions_ref().opacity(0, 1),
+		instructions_1_ref().opacity(0, 1),
 		scenario_phone_ref().opacity(0, 1),
 		operator_layout_ref().opacity(0, 1),
 		operator_diagnostics_ref().opacity(0, 1),
@@ -541,34 +573,147 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("engineSplit");
 	yield* all(
 		engine_ref().eyeRef().standalone(true, 1),
-		engine_ref().eyeRef().x(-600, 1),
+		engine_ref().eyeRef().x(-540, 1),
 		engine_ref().x(300, 1),
 		engine_ref().showLabel(1, "Thinker", ""),
-		engine_ref().eyeRef().showLabel(1, "Listener", ""),
+		engine_ref().eyeRef().showLabel(1, "Observer", ""),
 	);
 	
 	// The panel is constantly sending data to our Platform.
 	panel_ref().x(-400)
-	yield* beginSlide("engineSplit2");
+	yield* beginSlide("panelWillSendData");
 	yield* all(
 		panel_ref().opacity(1, 1),
 		platform_ref().opacity(1, 1),
 		infoStream_ref().opacity(1, 1),
 	);
 
-	// The listener can watch this data stream and copy pieces of the data that it cares about.
-	yield* beginSlide("engineSplit3");
+	// The observer can watch this data stream and copy pieces of the data that it cares about.
+	yield* beginSlide("dataStream");
 	yield* all(
-		delay(1, engine_ref().eyeLook("left")),
 		infoStream_ref().sendStream({columns:3, rows:50, linesPerSecond:8, periodicSyphon_ref: engine_ref().eyeRef().blockRef().mainRef}),
+		delay(1, engine_ref().eyeLook("left")),
+		history_ref().setLabel("Mongo DB", "", 0),
+		clock_ref().blockRef().setLabel("Client Program", "", 0),
 	);
 	yield* engine_ref().eyeLook(),
 
 	// These values get stored in our database so the thinker can reference them later
-	yield* beginSlide("end");
+	history_ref().x(0)
+	yield* beginSlide("storeInDatabase.1");
+	yield* history_ref().opacity(1, 1)
+	yield* engine_ref().eyeLook("topRight")
+	yield* connect_1_ref().drawArrow({ref: engine_ref().eyeRef().blockRef().blockRef, position: "top"}, {ref: history_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90", pauseLabel: "storeInDatabase.2"})
+	yield* engine_ref().eyeLook()
+
+	// Clients ask the thinker questions
+	clock_ref().y(300)
+	yield* beginSlide("clientAppears.1");
+	yield* clock_ref().opacity(1, 1)
+	yield* connect_1_ref().drawArrow({ref: clock_ref().blockRef().blockRef, position: "top"}, {ref: engine_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90", pauseLabel: "clientAppears.2"})
+
+	// The thinking portion then ask the database about what the system currently looks like
+	yield* connect_1_ref().drawArrow({ref: engine_ref().blockRef, position: "top"}, {ref: history_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90", pauseLabel: "clientAppears.3"})
+	yield* connect_1_ref().drawArrow({ref: history_ref().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "top"}, {timespan: 1, lag: 0.3, direction: "end", bend: "counter_clockwise_90", pauseLabel: "clientAppears.4"})
+
+	// It can then think about the information and reply to the client with detailed instructions
+	yield* engine_ref().gearSpin()
+	yield* sendDocument({ref: engine_ref().blockRef, position: "bottomRight"}, {ref: clock_ref().blockRef().blockRef, position: "topLeft"}, {pauseLabel: "clientAppears.5"}),
+
+	// All the while, the observer is constantly updating what is in the database so when the thinker is asked- it can use the latest information.
 	yield* all(
-		history_ref().opacity(1, 1),
+		delay(1, engine_ref().eyeLook("left")),
+		infoStream_ref().sendStream({columns:3, rows:200, linesPerSecond:8, periodicSyphon_ref: engine_ref().eyeRef().blockRef().mainRef, periodicSyphon_batchCount: 4, periodicSyphon_callbackSequence:() => {
+			return chain(
+				engine_ref().eyeLook("top"),
+				connect_1_ref().drawArrow({ref: engine_ref().eyeRef().blockRef().blockRef, position: "top"}, {ref: history_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+				engine_ref().eyeLook("left"),
+				);
+		}}),
+		delay(1, chain(
+			connect_2_ref().drawArrow({ref: clock_ref().blockRef().blockRef, position: "top"}, {ref: engine_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+			connect_2_ref().drawArrow({ref: engine_ref().blockRef, position: "top"}, {ref: history_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+			connect_2_ref().drawArrow({ref: history_ref().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "top"}, {timespan: 1, lag: 0.3, direction: "end", bend: "counter_clockwise_90"}),
+			engine_ref().gearSpin(),
+			sendDocument({ref: engine_ref().blockRef, position: "bottomRight"}, {ref: clock_ref().blockRef().blockRef, position: "topLeft"}), 
+			
+			waitFor(0.4),
+			connect_2_ref().drawArrow({ref: clock_ref().blockRef().blockRef, position: "top"}, {ref: engine_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+			connect_2_ref().drawArrow({ref: engine_ref().blockRef, position: "top"}, {ref: history_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+			connect_2_ref().drawArrow({ref: history_ref().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "top"}, {timespan: 1, lag: 0.3, direction: "end", bend: "counter_clockwise_90"}),
+			engine_ref().gearSpin(),
+			sendDocument({ref: engine_ref().blockRef, position: "bottomRight"}, {ref: clock_ref().blockRef().blockRef, position: "topLeft"}),
+			
+			waitFor(0.4),
+			connect_2_ref().drawArrow({ref: clock_ref().blockRef().blockRef, position: "top"}, {ref: engine_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+			connect_2_ref().drawArrow({ref: engine_ref().blockRef, position: "top"}, {ref: history_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "clockwise_90"}),
+			connect_2_ref().drawArrow({ref: history_ref().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "top"}, {timespan: 1, lag: 0.3, direction: "end", bend: "counter_clockwise_90"}),
+			engine_ref().gearSpin(),
+			sendDocument({ref: engine_ref().blockRef, position: "bottomRight"}, {ref: clock_ref().blockRef().blockRef, position: "topLeft"}),
+		)),
 	);
+	yield* engine_ref().eyeLook();
+
+	// The clients don't actually talk directly to the engine either though.
+	yield* beginSlide("apiLayer_clientsAppear");
+	yield* all(
+		panel_ref().opacity(0, 1),
+		platform_ref().opacity(0, 1),
+		infoStream_ref().opacity(0, 1),
+		history_ref().opacity(0, 1),
+		engine_ref().eyeRef().opacity(0, 1),
+	);
+
+	operator_layout_ref().x(700)
+	operator_layout_ref().y(20)
+	phone_ref().x(700)
+	phone_ref().y(-500)
+	yield* all(
+		engine_ref().x(-600, 1),
+		delay(0.5, sequence(0.1,
+			operator_layout_ref().opacity(1, 1),
+			scenario_phone_ref().opacity(1, 1),
+			phone_ref().opacity(1, 1),
+			all(
+				operator_layout_ref().setLabel("Platinum Pro", "", 1),
+				phone_ref().blockRef().setLabel("Vivint App", "", 1),
+				clock_ref().blockRef().setLabel("Panel Self Heal", "", 1),
+			),
+		)),
+	);
+
+	// We actually have curated endpoints for them to ask
+	yield* beginSlide("apiLayer_doorsAppear");
+	yield* sequence(0.1,
+		apiForApp_ref().opacity(1, 1),
+		apiForPlatinumPro_ref().opacity(1, 1),
+		apiForSelfHeal_ref().opacity(1, 1),
+		instructions_1_ref().setLabel("How to Fix", "", 0)
+	);
+
+	// A client will ask it's specific api endpoint
+	yield* beginSlide("apiLayer_askApi");
+	yield* connect_1_ref().drawArrow({ref: clock_ref().blockRef().blockRef, position: "left"}, {ref: apiForSelfHeal_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "none", pauseLabel: "apiLayer_askApi.2"})
+
+	// The api endpoint then asks the thinker, which replies back
+	yield* connect_1_ref().drawArrow({ref: apiForSelfHeal_ref().blockRef, position: "left"}, {ref: engine_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal", pauseLabel: "apiLayer_askApi.3"})
+	yield* engine_ref().gearSpin()
+	yield* sendDocument({ref: engine_ref().blockRef, position: "bottomRight"}, {ref: apiForSelfHeal_ref().blockRef, position: "topLeft"}, {pauseLabel: "apiLayer_askApi.4", color: "#d1d1d1"}),
+
+	// The endpoint then can customize the shape, namings, and add instructions for their specific client to fix the issue
+	instructions_1_ref().x(200)
+	instructions_1_ref().y(-200)
+	instructions_1_ref().scale(0.7)
+	yield* sequence(0.1,
+		instructions_1_ref().opacity(1, 1),
+		instructions_2_ref().opacity(1, 1),
+		instructions_3_ref().opacity(1, 1),
+	);
+	yield* sendDocument({ref: apiForSelfHeal_ref().blockRef, position: "right"}, {ref: instructions_3_ref().blockRef, position: "topLeft"}, {pauseLabel: "apiLayer_replyApi.1", color: "#d1d1d1"});
+	yield* sendDocument({ref: instructions_3_ref().blockRef, position: "topLeft"}, {ref: apiForSelfHeal_ref().blockRef, position: "right"}, {pauseLabel: "apiLayer_replyApi.2"});
+
+	// The personalized payload is then sent to the client
+	yield* sendDocument({ref: apiForSelfHeal_ref().blockRef, position: "right"}, {ref: clock_ref().blockRef().blockRef, position: "left"}, {pauseLabel: "apiLayer_replyApi.3"});
 
 	yield* beginSlide("end");
  });

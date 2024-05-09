@@ -116,13 +116,13 @@ export class Block extends Node {
 				>
 					<Txt  ref={this.labelTopRef}
 						fill={this.color_label}
-						text={props?.label || props?.labelBottom || ""}
+						text={props?.label || props?.labelTop || ""}
 						fontSize={label_fontSize}
 						y={label_fontSize + (props?.label_offset || 0)}
 					/>
 					<Txt  ref={this.labelBottomRef}
 						fill={this.color_label}
-						text={props?.labelTop || ""}
+						text={props?.labelBottom || ""}
 						fontSize={label_fontSize}
 						top={this.labelTopRef().bottom}
 					/>

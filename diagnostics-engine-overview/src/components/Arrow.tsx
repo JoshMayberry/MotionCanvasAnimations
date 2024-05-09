@@ -1,4 +1,5 @@
 import {Layout, Line, Node, NodeProps, Path, Txt} from '@motion-canvas/2d/lib/components';
+import {beginSlide} from '@motion-canvas/core';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createSignal, SimpleSignal} from '@motion-canvas/core/lib/signals';
 import {Reference, createRef} from '@motion-canvas/core/lib/utils';
@@ -27,10 +28,19 @@ export interface drawArrow_options {
 	timespan?: number,
 	lag?: number,
 	direction?: "start" | "end",
-	bend?: "horizontal" | "vertical" | "none",
+	bend?: "horizontal" | "vertical" | "none" | "clockwise_90" | "counter_clockwise_90",
 	delta_divisior?: number,
 	signal?: SimpleSignal<number, void>,
 	doEnd?: boolean,
+	pauseLabel?: string
+	pauseTimespan?: number,
+}
+
+export interface sendPayload_options {
+	timespan?: number,
+	pauseLabel?: string
+	pauseTimespan?: number,
+	color?: string,
 }
 
 export interface Connection {
@@ -125,6 +135,8 @@ export class Arrow extends Node {
 		bend="vertical",
 		delta_divisior=3,
 		doEnd=true,
+		pauseLabel="",
+		pauseTimespan=null,
 	}:drawArrow_options={}): ThreadGenerator {
 		// Determine Path
 		const point_source = this.positionLocalToLocal(connection_source);
@@ -150,6 +162,14 @@ export class Arrow extends Node {
 					pointList.push(point_destination.add([-x_delta, 0]))
 				}
 				break;
+
+			case "clockwise_90":
+				pointList.push(new Vector2(point_source.x, point_destination.y));
+				break;
+
+			case "counter_clockwise_90":
+				pointList.push(new Vector2(point_destination.x, point_source.y));
+				break;
 			
 			case "none":
 				break;
@@ -170,6 +190,10 @@ export class Arrow extends Node {
 		if (this.current_mode == "with_payload") {
 			this.signal(0);
 		}
+
+		if (pauseTimespan == null) {
+			pauseTimespan = timespan - lag
+		}
 	
 		// Animate Line
 		if (is_start) {
@@ -177,6 +201,7 @@ export class Arrow extends Node {
 				((this.current_mode == "with_payload") ? this.signal(1, timespan) : null),
 				this.lineRef().end(1, timespan),
 				(doEnd ? delay(lag, this.lineRef().start(1, timespan)) : null),
+				((pauseLabel != "") ? delay(pauseTimespan, beginSlide(pauseLabel)) : null),
 			);
 		}
 		else {
@@ -184,6 +209,7 @@ export class Arrow extends Node {
 				((this.current_mode == "with_payload") ? this.signal(1, timespan) : null),
 				this.lineRef().start(1, timespan),
 				(doEnd ? delay(lag, this.lineRef().end(1, timespan)) : null),
+				((pauseLabel != "") ? delay(pauseTimespan, beginSlide(pauseLabel)) : null),
 			);
 		}
 	}
@@ -192,13 +218,31 @@ export class Arrow extends Node {
 		yield* this.lineRef().end(1, duration);
 	}
 
-	public* sendPayload(connection_source: Connection, connection_destination: Connection, duration:number=1) {
+	public* sendPayload(connection_source: Connection, connection_destination: Connection, {
+		timespan=1,
+		pauseLabel="",
+		color="",
+		pauseTimespan=null
+	}:sendPayload_options={}) {
+		if (pauseTimespan == null) {
+			pauseTimespan = timespan / 2
+		}
+
+		if (color != "") {
+			this.payloadBodyRef().fill(new Color(color));
+		}
+
 		yield* all(
 			this.mainRef().opacity(1, 0.2),
-			this.drawArrow(connection_source, connection_destination, {timespan: duration, lag: 0, direction: "end", bend: "none"}),
-			delay(duration - 0.2, all(
+			this.drawArrow(connection_source, connection_destination, {timespan, lag: 0, direction: "end", bend: "none"}),
+			delay(timespan - 0.2, all(
 				this.mainRef().opacity(0, 0.2),
 			)),
+			((pauseLabel != "") ? delay(pauseTimespan, beginSlide(pauseLabel)) : null),
 		);
+
+		if (color != "") {
+			this.payloadBodyRef().fill(this.color_payload);
+		}
 	}
 }

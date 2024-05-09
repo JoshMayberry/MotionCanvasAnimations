@@ -2,6 +2,7 @@ import {Circle, Layout, Node, NodeProps, Path, Rect} from '@motion-canvas/2d/lib
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createRef} from '@motion-canvas/core/lib/utils';
 import {all, delay} from '@motion-canvas/core/lib/flow';
+import { Block } from './Block';
 
 type PhoneApps = "blank" | "vivint" | "diagnostics" | "call";
 
@@ -16,16 +17,13 @@ export interface PhoneProps extends NodeProps {
 }
 
 export class Phone extends Node {
-	private color_block;
-	private color_blockFill;
 	private color_vivintApp;
 	private color_diagnosticsBlock;
 	private color_diagnosticsLines;
 	private color_call;
 
 	public readonly mainRef = createRef<Layout>();
-	public readonly blockRef = createRef<Rect>();
-	public readonly blockFillRef = createRef<Rect>();
+	public readonly blockRef = createRef<Block>();
 	public readonly vivintAppRef = createRef<Layout>();
 	public readonly diagnosticsRef = createRef<Layout>();
 	public readonly callRef = createRef<Path>();
@@ -35,8 +33,6 @@ export class Phone extends Node {
 	public constructor(props?: PhoneProps) {
 		super({ ...props });
 
-		this.color_block = new Color(props?.color_block || "#6D6C70");
-		this.color_blockFill = new Color(props?.color_blockFill || "#A2A1A6");
 		this.color_vivintApp = new Color(props?.color_vivintApp || "#1E1E1F");
 		this.color_diagnosticsBlock = new Color(props?.color_diagnosticsBlock || "#f7646c");
 		this.color_diagnosticsLines = new Color(props?.color_diagnosticsLines || "#1E1E1F");
@@ -46,18 +42,15 @@ export class Phone extends Node {
 
 		this.add(
 			<Layout ref={this.mainRef}>
-				<Rect ref={this.blockRef}
+				<Block ref={this.blockRef}
 					width={190}
 					height={270}
-					fill={this.color_block}
+					mode="with_fill"
+					color_block={props?.color_block || "#6D6C70"}
+					color_blockFill={props?.color_blockFill || "#A2A1A6"}
 					radius={10}
 				/>
-				<Rect ref={this.blockFillRef}
-					width={160}
-					height={250}
-					fill={this.color_blockFill}
-					radius={10}
-				/>
+				
 				<Layout ref={this.vivintAppRef}
 					scale={1}
 					x={0}

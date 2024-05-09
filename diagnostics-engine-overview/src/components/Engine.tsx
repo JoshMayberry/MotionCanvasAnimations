@@ -78,7 +78,11 @@ export class Engine extends Node {
 							/>
 						</Layout>
 					</Layout>
-					<Eye ref={this.eyeRef} color_eye={props.color_eye}/>
+					<Eye ref={this.eyeRef}
+						color_eye={props.color_eye}
+						x={60}
+						y={60}
+					/>
 				</Layout>
 			</Layout>
 		);

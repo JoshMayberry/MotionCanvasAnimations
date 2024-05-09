@@ -24,6 +24,8 @@ export interface SendStreamProps {
     linesPerSecond?: number,
 	direction?: DataStreamDirection,
     periodicSyphon_ref?: Reference<any>,
+    periodicSyphon_batchCount?: number,
+    periodicSyphon_callbackSequence?: () => ThreadGenerator,
 }
 
 export class DataStream extends Node {
@@ -87,8 +89,8 @@ export class DataStream extends Node {
 	}
 
 	public* sendStream({
-        columns=3, rows=100, linesPerSecond=8,
-        direction="down", periodicSyphon_ref=null,
+        columns=3, rows=100, linesPerSecond=8, direction="down",
+        periodicSyphon_ref=null, periodicSyphon_batchCount=1, periodicSyphon_callbackSequence=null,
     }:SendStreamProps={}) {
         const text = generateDataStream(columns, rows)
         this.textRef().text(text)
@@ -110,8 +112,8 @@ export class DataStream extends Node {
         var periodicSyphon: ThreadGenerator
         if (periodicSyphon_ref != null) {
             // Every so often, have a random group of 4 0s and 1s move from the center of *maskRef* to the center of *periodicSyphon_ref*
-            const duration_syphon = duration * 0.5;
-            const duration_wait = (duration - duration_syphon) / 2
+            const duration_syphon = duration * 0.5 / periodicSyphon_batchCount;
+            const duration_wait = (duration - duration_syphon) / (2 * periodicSyphon_batchCount)
 
             this.syphonPath1_ref().payloadTextRef().text(`${generateDataStream(1, 1)}`);
             this.syphonPath2_ref().payloadTextRef().text(`${generateDataStream(1, 1)}`);
@@ -121,11 +123,17 @@ export class DataStream extends Node {
             periodicSyphon = function*() {
                 yield* waitFor(duration_wait);
                 
-                yield* sequence(duration_syphon / 3,
-                    _this.syphonPath1_ref().sendPayload({ref: _this.maskRef, position: "top"}, {ref: periodicSyphon_ref, position: "middle"}, duration_syphon),
-                    _this.syphonPath2_ref().sendPayload({ref: _this.maskRef, position: "top"}, {ref: periodicSyphon_ref, position: "middle"}, duration_syphon),
-                    _this.syphonPath3_ref().sendPayload({ref: _this.maskRef, position: "top"}, {ref: periodicSyphon_ref, position: "middle"}, duration_syphon),
-                )
+               for (let i = 0; i < periodicSyphon_batchCount - 1; i++) {
+                    yield* sequence(duration_syphon / periodicSyphon_batchCount,
+                        _this.syphonPath1_ref().sendPayload({ref: _this.maskRef, position: "top"}, {ref: periodicSyphon_ref, position: "middle"}, {timespan: duration_syphon}),
+                        _this.syphonPath2_ref().sendPayload({ref: _this.maskRef, position: "top"}, {ref: periodicSyphon_ref, position: "middle"}, {timespan: duration_syphon}),
+                        _this.syphonPath3_ref().sendPayload({ref: _this.maskRef, position: "top"}, {ref: periodicSyphon_ref, position: "middle"}, {timespan: duration_syphon}),
+                    );
+
+                    if (periodicSyphon_callbackSequence != null) {
+                        yield* periodicSyphon_callbackSequence()
+                    }
+               }
             }()
         }
 
