@@ -24,11 +24,13 @@ export interface ArrowProps extends NodeProps {
 	payloadText_fontSize?: number,
 }
 
+export type DrawBend = "horizontal" | "vertical" | "none" | "clockwise_90" | "counter_clockwise_90"
+
 export interface drawArrow_options {
 	timespan?: number,
 	lag?: number,
 	direction?: "start" | "end",
-	bend?: "horizontal" | "vertical" | "none" | "clockwise_90" | "counter_clockwise_90",
+	bend?: DrawBend,
 	delta_divisior?: number,
 	signal?: SimpleSignal<number, void>,
 	doEnd?: boolean,
@@ -43,9 +45,11 @@ export interface sendPayload_options {
 	color?: string,
 }
 
+export type ConnectionPosition = "middle" | "top" | "bottom" | "left" | "right" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+
 export interface Connection {
 	ref: Reference<Layout>
-	position: "middle" | "top" | "bottom" | "left" | "right" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+	position: ConnectionPosition
 	offset?: PossibleVector2
 }
 

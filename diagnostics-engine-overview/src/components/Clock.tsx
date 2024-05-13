@@ -1,4 +1,5 @@
 import {Circle, Layout, Line, Node, NodeProps, Path, Rect} from '@motion-canvas/2d/lib/components';
+import {ThreadGenerator, all, chain} from '@motion-canvas/core';
 import {map, tween} from '@motion-canvas/core/lib/tweening';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import { Block } from './Block';
@@ -50,11 +51,17 @@ export class Clock extends Node {
 		);
 	}
 
-    public* turnClock(revolution_count:number = 1, revolution_time:number = 5) {
+    public* turnClock(revolution_count:number = 1, revolution_time:number = 5, callbackSequence:()=>ThreadGenerator = null) {
         this.pathRef().rotation(0);
 
-        yield* tween(revolution_time * revolution_count, (percentage) => {
-			this.pathRef().rotation(map(0, 360 * revolution_count, percentage))
-		});
+        for (let i = 0; i < revolution_count; i++) {
+            yield* tween(revolution_time, (percentage) => {
+                    this.pathRef().rotation(map(0, 360, percentage))
+                });
+            
+            if (callbackSequence != null) {
+                yield* callbackSequence();
+            }
+        }
     }
 }
