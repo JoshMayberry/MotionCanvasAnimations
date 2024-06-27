@@ -179,7 +179,7 @@ export default makeScene2D(function* (view) {
 	// The diagnostics engine can take a structured input query
 	yield* all(
 		paperClient_ref().codeRef().edit(1, false)`${insert("{\n    \"service_number\": 12345678,\n    \"only_cameras\": true\n}")}`,
-		delay(0.6, connect_ref().drawArrow({ref: phone_ref().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"})),
+		delay(0.6, connect_ref().drawArrow({ref: phone_ref().blockRef().blockRef, position: "right"}, {ref: engine_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"})),
 	);
 	
 	yield* beginSlide("engineSends1");
@@ -188,7 +188,7 @@ export default makeScene2D(function* (view) {
 		engine_ref().gearSpin(2),
 		delay(1.2, all(
 			paperEngine_ref().codeRef().edit(1, false)`${insert("[\n    {\"name\": \"Front Yard\", \"status\": 1},\n    {\"name\": \"Living Room\", \"status\": 4},\n    {\"name\": \"Backyard\", \"status\": 0}\n]")}`,
-			delay(0.6, connect_ref().drawArrow({ref: engine_ref().blockRef, position: "left"}, {ref: phone_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"})),
+			delay(0.6, connect_ref().drawArrow({ref: engine_ref().blockRef, position: "left"}, {ref: phone_ref().blockRef().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"})),
 		)),
 	);
 
@@ -226,7 +226,7 @@ export default makeScene2D(function* (view) {
 	yield* beginSlide("clientLlmRecieves");
 	// and produce a structured input query
 	yield* all(
-		connect_ref().drawArrow({ref: phone_ref().blockRef, position: "right"}, {ref: llmClient_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),
+		connect_ref().drawArrow({ref: phone_ref().blockRef().blockRef, position: "right"}, {ref: llmClient_ref().blockRef, position: "left"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),
 		delay(0.7, paperLlmClient_ref().codeRef().edit(1, false)`${insert("{\n  \"service_number\":\n    12345678,\n  \"only_cameras\":\n    true\n}")}`),
 	);
 	
@@ -264,7 +264,7 @@ export default makeScene2D(function* (view) {
 	yield* all(
 		connect_ref().drawArrow({ref: engine_ref().blockRef, position: "left"}, {ref: llmEngine_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),
 		delay(0.7, paperLlmEngine_ref().codeRef().edit(1, false)`${insert("The front yard's\ncamera is doing\ngreat, the living\nroom one has low\nbatteries, and your\nbackyard's camera\nis offline.")}`),
-		delay(1.5, connect_ref().drawArrow({ref: llmEngine_ref().blockRef, position: "left"}, {ref: phone_ref().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),)
+		delay(1.5, connect_ref().drawArrow({ref: llmEngine_ref().blockRef, position: "left"}, {ref: phone_ref().blockRef().blockRef, position: "right"}, {timespan: 1, lag: 0.3, direction: "end", bend: "horizontal"}),)
 	);
 	//#endregion
 

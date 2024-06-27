@@ -3,7 +3,7 @@ import {beginSlide} from '@motion-canvas/core';
 import {Color} from '@motion-canvas/core/lib/types/Color';
 import {createSignal, SimpleSignal} from '@motion-canvas/core/lib/signals';
 import {Reference, createRef} from '@motion-canvas/core/lib/utils';
-import {all, delay} from '@motion-canvas/core/lib/flow';
+import {all, delay, sequence} from '@motion-canvas/core/lib/flow';
 import { PossibleVector2, Vector2 } from '@motion-canvas/core/lib/types/Vector';
 import { ThreadGenerator } from '@motion-canvas/core/lib/threading/ThreadGenerator';
 
@@ -24,11 +24,12 @@ export interface ArrowProps extends NodeProps {
 	payloadText_fontSize?: number,
 }
 
-export type DrawBend = "horizontal" | "vertical" | "none" | "clockwise_90" | "counter_clockwise_90"
+export type DrawBend = "horizontal" | "vertical" | "none" | "clockwise_90" | "counter_clockwise_90" | "horizontal_clockwise" | "vertical_clockwise" | "horizontal_counter_clockwise" | "vertical_counter_clockwise"
 
 export interface drawArrow_options {
 	timespan?: number,
 	lag?: number,
+	partialPadding?: number,
 	direction?: "start" | "end",
 	bend?: DrawBend,
 	delta_divisior?: number,
@@ -36,6 +37,8 @@ export interface drawArrow_options {
 	doEnd?: boolean,
 	pauseLabel?: string
 	pauseTimespan?: number,
+	finishTimespan?: number,
+	method?: DrawArrowMethod,
 }
 
 export interface sendPayload_options {
@@ -46,6 +49,7 @@ export interface sendPayload_options {
 }
 
 export type ConnectionPosition = "middle" | "top" | "bottom" | "left" | "right" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+export type DrawArrowMethod = "complete" | "partial"
 
 export interface Connection {
 	ref: Reference<Layout>
@@ -131,17 +135,13 @@ export class Arrow extends Node {
 	
 		return answer;
 	}
+
 	
-	public* drawArrow(connection_source: Connection, connection_destination: Connection, {
-		timespan=0.5,
-		lag=0.3,
+	public formatArrowPoints(connection_source: Connection, connection_destination: Connection, {
 		direction="end",
 		bend="vertical",
 		delta_divisior=3,
-		doEnd=true,
-		pauseLabel="",
-		pauseTimespan=null,
-	}:drawArrow_options={}): ThreadGenerator {
+	}:drawArrow_options={}): void {
 		// Determine Path
 		const point_source = this.positionLocalToLocal(connection_source);
 		const point_destination = this.positionLocalToLocal(connection_destination);
@@ -157,12 +157,44 @@ export class Arrow extends Node {
 					pointList.push(point_destination.add([0, -y_delta]))
 				}
 				break;
+
+			case "vertical_clockwise":
+				if (point_source.x != point_destination.x) {
+					const y_delta = (point_destination.y - point_source.y) / delta_divisior;
+			
+					pointList.push(point_source.add([0, y_delta]))
+				}
+				break;
+
+			case "vertical_counter_clockwise":
+				if (point_source.x != point_destination.x) {
+					const y_delta = (point_destination.y - point_source.y) / delta_divisior;
+			
+					pointList.push(point_destination.add([0, -y_delta]))
+				}
+				break;
 			
 			case "horizontal":
 				if (point_source.y != point_destination.y) {
 					const x_delta = (point_destination.x - point_source.x) / delta_divisior;
 			
 					pointList.push(point_source.add([x_delta, 0]))
+					pointList.push(point_destination.add([-x_delta, 0]))
+				}
+				break;
+			
+			case "horizontal_clockwise":
+				if (point_source.y != point_destination.y) {
+					const x_delta = (point_destination.x - point_source.x) / delta_divisior;
+			
+					pointList.push(point_source.add([x_delta, 0]))
+				}
+				break;
+	
+			case "horizontal_counter_clockwise":
+				if (point_source.y != point_destination.y) {
+					const x_delta = (point_destination.x - point_source.x) / delta_divisior;
+			
 					pointList.push(point_destination.add([-x_delta, 0]))
 				}
 				break;
@@ -174,7 +206,7 @@ export class Arrow extends Node {
 			case "counter_clockwise_90":
 				pointList.push(new Vector2(point_destination.x, point_source.y));
 				break;
-			
+
 			case "none":
 				break;
 	
@@ -190,7 +222,16 @@ export class Arrow extends Node {
 		this.lineRef().endArrow(!is_start);
 	
 		this.lineRef().points(pointList);
+	}
 	
+	public* drawArrow(connection_source: Connection, connection_destination: Connection, {
+		timespan=0.5,
+		lag=0.3,
+		pauseLabel="",
+		pauseTimespan=null,
+	}:drawArrow_options={}): ThreadGenerator {
+		this.formatArrowPoints(connection_source, connection_destination, arguments[2])
+		
 		if (this.current_mode == "with_payload") {
 			this.signal(0);
 		}
@@ -198,23 +239,108 @@ export class Arrow extends Node {
 		if (pauseTimespan == null) {
 			pauseTimespan = timespan - lag
 		}
-	
-		// Animate Line
-		if (is_start) {
-			yield* all(
-				((this.current_mode == "with_payload") ? this.signal(1, timespan) : null),
-				this.lineRef().end(1, timespan),
-				(doEnd ? delay(lag, this.lineRef().start(1, timespan)) : null),
-				((pauseLabel != "") ? delay(pauseTimespan, beginSlide(pauseLabel)) : null),
-			);
+
+		const answer = []
+		if (this.current_mode == "with_payload") {
+			answer.push(this.signal(1, timespan))
 		}
-		else {
-			yield* all(
-				((this.current_mode == "with_payload") ? this.signal(1, timespan) : null),
-				this.lineRef().start(1, timespan),
-				(doEnd ? delay(lag, this.lineRef().end(1, timespan)) : null),
-				((pauseLabel != "") ? delay(pauseTimespan, beginSlide(pauseLabel)) : null),
-			);
+
+		answer.push(this.getArrowPath(arguments[2]))
+
+		if (pauseLabel != "") {
+			answer.push(delay(pauseTimespan, beginSlide(pauseLabel)))
+		}
+
+		yield* all(...answer);
+	}
+
+	public getArrowPath({
+		timespan=0.5,
+		lag=0.3,
+		direction="end",
+		doEnd=true,
+		method="complete",
+		partialPadding=0.2,
+	}:drawArrow_options={}): ThreadGenerator {
+		switch(method) {
+			case "complete": {
+				const answer = []
+				if (direction == "start") {
+					answer.push(this.lineRef().end(1, timespan));
+					if (doEnd) {
+						answer.push(delay(lag, this.lineRef().start(1, timespan)));
+					}
+				}
+				else {
+					answer.push(this.lineRef().start(1, timespan));
+					if (doEnd) {
+						answer.push(delay(lag, this.lineRef().end(1, timespan)));
+					}
+				}
+				return all(...answer);
+			}
+			case "partial": {
+				if (direction == "start") {
+					return sequence(lag,
+						this.lineRef().end(1 - partialPadding, timespan),
+						this.lineRef().start(partialPadding, timespan),
+					)
+				}
+				else {
+					return sequence(lag,
+						this.lineRef().start(1 - partialPadding, timespan),
+						this.lineRef().end(partialPadding, timespan),
+					)
+				}
+			}
+		}
+	}
+	
+	public* drawArrowFinish({
+		timespan=0.5,
+		finishTimespan=null,
+		lag=0.3,
+		direction="end",
+		doEnd=true,
+		method="partial",
+	}:drawArrow_options={}): ThreadGenerator {
+		if (finishTimespan == null) {
+			finishTimespan = timespan - lag
+		}
+
+		switch(method) {
+			case "complete": {
+				const answer = []
+				if (direction == "start") {
+					answer.push(this.lineRef().end(1, finishTimespan));
+					if (doEnd) {
+						answer.push(delay(lag, this.lineRef().start(1, finishTimespan)));
+					}
+				}
+				else {
+					answer.push(this.lineRef().start(1, finishTimespan));
+					if (doEnd) {
+						answer.push(delay(lag, this.lineRef().end(1, finishTimespan)));
+					}
+				}
+				yield* all(...answer);
+				break;
+			}
+			case "partial": {
+				if (direction == "start") {
+					yield* sequence(lag,
+						this.lineRef().end(1, finishTimespan),
+						this.lineRef().start(1, finishTimespan),
+					)
+				}
+				else {
+					yield* sequence(lag,
+						this.lineRef().start(1, finishTimespan),
+						this.lineRef().end(1, finishTimespan),
+					)
+				}
+				break;
+			}
 		}
 	}
 

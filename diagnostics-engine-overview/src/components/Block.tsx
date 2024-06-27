@@ -9,6 +9,7 @@ type FadeDirection = "none" | "up" | "down" | "left" | "right"
 
 export interface BlockProps extends NodeProps {
 	willFadeIn?: boolean,
+	invertColors?: boolean,
 	color_block?: string,
 	color_blockFill?: string,
 	color_path?: string,
@@ -65,7 +66,7 @@ export class Block extends Node {
 		this.color_block = new Color(props?.color_block || "#6D6C70");
 		this.color_blockFill = new Color(props?.color_blockFill || "#A2A1A6");
 		this.color_path = new Color(props?.color_path || "#1E1E1F");
-		this.color_label = new Color(props?.color_label || this.color_blockFill);
+		this.color_label = new Color(props?.color_label || (props?.invertColors ? "#1E1E1F" : this.color_blockFill));
 		this.color_status = {
 			"no": new Color(props?.color_status?.no || "#f99096"),
 			"yes": new Color(props?.color_status?.yes || "#96f990"),
@@ -83,14 +84,14 @@ export class Block extends Node {
 				<Rect ref={this.blockRef}
 					width={(props?.width != null) ? props.width : ((props?.src != null) ? (() => this.blockFillRef().naturalSize().x * src_scale) : 150)}
 					height={(props?.height != null) ? props.height : ((props?.src != null) ? (() => this.blockFillRef().naturalSize().y * src_scale) : 150)}
-					fill={this.color_block}
+					fill={(props?.invertColors ? this.color_blockFill : this.color_block)}
 					radius={props?.radius ?? 10}
 				/>
 				{(props?.src == null) ? (
 					<Rect ref={this.blockFillRef}
 						width={() => this.blockRef().width() - (props?.fill_offset ?? 20)}
 						height={() => this.blockRef().height() - (props?.fill_offset ?? 20)}
-						fill={this.color_blockFill}
+						fill={(props?.invertColors ? this.color_block : this.color_blockFill)}
 						radius={props?.radius_fill ?? props?.radius ?? 10}
 						opacity={(props?.mode == "with_fill") ? 1 : 0}
 					/>
@@ -98,7 +99,7 @@ export class Block extends Node {
 					<Img ref={this.blockFillRef}
 						width={() => this.blockRef().width() - (props?.fill_offset ?? 20)}
 						height={() => this.blockRef().height() - (props?.fill_offset ?? 20)}
-						fill={this.color_blockFill}
+						fill={(props?.invertColors ? this.color_block : this.color_blockFill)}
 						radius={props?.radius_fill ?? props?.radius ?? 10}
 						opacity={1}
 						src={props?.src}
